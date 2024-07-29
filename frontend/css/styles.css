@@ -1,0 +1,58 @@
+body {
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+.navbar {
+    background-color: #FF4500;
+}
+
+.navbar-brand, .nav-link {
+    color: #ffffff !important;
+}
+
+.carousel-caption h5, .carousel-caption p {
+    color: #ffffff;
+}
+
+.btn-primary {
+    background-color: #FF4500;
+    border-color: #FF4500;
+}
+
+.btn-primary:hover {
+    background-color: #E63E00;
+    border-color: #E63E00;
+}
+
+.card {
+    border: none;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card-title {
+    color: #FF4500;
+}
+
+.badge {
+    background-color: #FF4500;
+}
+
+.footer {
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+.footer a {
+    color: #FF4500;
+}
+
+@media (max-width: 576px) {
+    .navbar-nav {
+        text-align: center;
+    }
+}
