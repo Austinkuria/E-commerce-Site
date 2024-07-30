@@ -7,6 +7,10 @@ body {
 /* Navbar Styles */
 .navbar {
     background-color: #e03b00; /* Dark orange-red */
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1030; /*navbar is on top of other elements */
 }
 
 .navbar-brand {
@@ -51,23 +55,14 @@ body {
 }
 
 /* Home section styles */
+/* Home section styles */
 .home-section {
     position: relative; /* Relative positioning for absolute overlay */
     width: 100%; /* Full viewport width */
     height: 100vh; /* Full viewport height */
     overflow: hidden; /* Hide overflow content */
-}
-
-.background-image-container {
-    position: absolute; /* Absolute positioning for full coverage */
-    top: 50%; /* Center vertically */
-    left: 50%; /* Center horizontally */
-    transform: translate(-50%, -50%); /*  to ensure image is centered */
-    width: 80%; /*  width as needed */
-    height: auto; /* Maintain aspect ratio */
-    background: url('../images/Exclusive offer.png') no-repeat center center;
-    background-size: contain; /* Ensure the image fits within the container */
-    z-index: -1; /* Ensure the image stays behind the overlay */
+    background: url('../images/Exclusive offer.png') no-repeat center center; /* Background image */
+    background-size: cover; /* Cover the container */
 }
 
 .overlay {
@@ -81,7 +76,7 @@ body {
     padding: 4rem; /* Increase padding for larger overlay */
     border-radius: 10px;
     width: 80%; /*  width to be larger */
-    max-width: 1000px; /* Ensure overlay does not stretch too wide */
+    max-width: 1000px; /*  overlay does not stretch too wide */
 }
 
 .overlay h1 {
@@ -111,6 +106,10 @@ body {
 
 /* Responsive styles */
 @media (max-width: 768px) {
+    .home-section {
+        background-size:auto; /* image maintains its aspect ratio */
+        height: 70vh;
+    }
     .overlay {
         padding: 2rem; /*  padding on smaller screens */
         width: 90%; /*  width for smaller screens */
@@ -132,24 +131,23 @@ body {
 
 @media (max-width: 576px) {
     .overlay {
-        padding: 1rem; /* Further reduce padding on extra small screens */
-        width: 95%; /* Ensure overlay is responsive */
+        padding: 1rem; /* Further  padding on extra small screens */
+        width: 95%; /*  overlay is responsive */
     }
 
     .overlay h1 {
-        font-size: 1.5rem; /* Further reduce font size for extra small screens */
+        font-size: 1.5rem; /* Further  font size for extra small screens */
     }
 
     .overlay p {
-        font-size: 1rem; /* Further reduce font size for extra small screens */
+        font-size: 1rem; /* Further  font size for extra small screens */
     }
 
     .btn-call-to-action {
-        font-size: 1rem; /* Further reduce font size for extra small screens */
+        font-size: 1rem; /* Further  font size for extra small screens */
         padding: 8px 16px; /* Further  padding for extra small screens */
     }
 }
-
 
 /* Products section styles */
 .products-section .card-title {
