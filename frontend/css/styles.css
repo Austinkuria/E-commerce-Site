@@ -75,15 +75,16 @@ body {
     background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for readability */
     padding: 2rem;
     border-radius: 10px;
+    max-width: 90%; /* Ensure overlay does not stretch too wide */
 }
 
 .overlay h1 {
-    font-size: 2.5rem;
+    font-size: 2.5rem; /* Adjust font size for large screens */
     margin-bottom: 1rem;
 }
 
 .overlay p {
-    font-size: 1.2rem;
+    font-size: 1.2rem; /* Adjust font size for large screens */
     margin-bottom: 2rem;
 }
 
@@ -100,6 +101,47 @@ body {
 
 .btn-call-to-action:hover {
     background-color: #e03b00; /* Darker shade on hover */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .overlay {
+        padding: 1rem; /* Reduce padding on smaller screens */
+        max-width: 80%; /* Adjust max-width for smaller screens */
+    }
+
+    .overlay h1 {
+        font-size: 1.8rem; /* Adjust font size for smaller screens */
+    }
+
+    .overlay p {
+        font-size: 1rem; /* Adjust font size for smaller screens */
+    }
+
+    .btn-call-to-action {
+        font-size: 1rem; /* Adjust font size for smaller screens */
+        padding: 8px 16px; /* Adjust padding for smaller screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .overlay {
+        padding: 0.5rem; /* Further reduce padding on extra small screens */
+        max-width: 90%; /* Ensure overlay is responsive */
+    }
+
+    .overlay h1 {
+        font-size: 1.5rem; /* Further reduce font size for extra small screens */
+    }
+
+    .overlay p {
+        font-size: 0.9rem; /* Further reduce font size for extra small screens */
+    }
+
+    .btn-call-to-action {
+        font-size: 0.9rem; /* Further reduce font size for extra small screens */
+        padding: 6px 12px; /* Further adjust padding for extra small screens */
+    }
 }
 
 /* Products section styles */
