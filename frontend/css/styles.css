@@ -59,10 +59,15 @@ body {
 }
 
 .background-image-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: url('../images/Exclusive offer.png') no-repeat center center/cover;
+    position: absolute; /* Absolute positioning for full coverage */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /*  to ensure image is centered */
+    width: 80%; /*  width as needed */
+    height: auto; /* Maintain aspect ratio */
+    background: url('../images/Exclusive offer.png') no-repeat center center;
+    background-size: contain; /* Ensure the image fits within the container */
+    z-index: -1; /* Ensure the image stays behind the overlay */
 }
 
 .overlay {
@@ -73,28 +78,29 @@ body {
     text-align: center;
     color: white;
     background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for readability */
-    padding: 2rem;
+    padding: 4rem; /* Increase padding for larger overlay */
     border-radius: 10px;
-    max-width: 90%; /* Ensure overlay does not stretch too wide */
+    width: 80%; /*  width to be larger */
+    max-width: 1000px; /* Ensure overlay does not stretch too wide */
 }
 
 .overlay h1 {
-    font-size: 2.5rem; /* Adjust font size for large screens */
+    font-size: 3rem; /* Increase font size for better visibility */
     margin-bottom: 1rem;
 }
 
 .overlay p {
-    font-size: 1.2rem; /* Adjust font size for large screens */
+    font-size: 1.5rem; /* Increase font size for better readability */
     margin-bottom: 2rem;
 }
 
 .btn-call-to-action {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 12px 24px;
     background-color: #FF4500; /* Call-to-action button color */
     color: white;
     text-decoration: none;
-    font-size: 1.2rem;
+    font-size: 1.5rem; /* Increase font size for better visibility */
     border-radius: 5px;
     transition: background-color 0.3s ease;
 }
@@ -106,28 +112,28 @@ body {
 /* Responsive styles */
 @media (max-width: 768px) {
     .overlay {
-        padding: 1rem; /* Reduce padding on smaller screens */
-        max-width: 80%; /* Adjust max-width for smaller screens */
+        padding: 2rem; /*  padding on smaller screens */
+        width: 90%; /*  width for smaller screens */
     }
 
     .overlay h1 {
-        font-size: 1.8rem; /* Adjust font size for smaller screens */
+        font-size: 2rem; /*  font size for smaller screens */
     }
 
     .overlay p {
-        font-size: 1rem; /* Adjust font size for smaller screens */
+        font-size: 1.2rem; /*  font size for smaller screens */
     }
 
     .btn-call-to-action {
-        font-size: 1rem; /* Adjust font size for smaller screens */
-        padding: 8px 16px; /* Adjust padding for smaller screens */
+        font-size: 1.2rem; /*  font size for smaller screens */
+        padding: 10px 20px; /*  padding for smaller screens */
     }
 }
 
 @media (max-width: 576px) {
     .overlay {
-        padding: 0.5rem; /* Further reduce padding on extra small screens */
-        max-width: 90%; /* Ensure overlay is responsive */
+        padding: 1rem; /* Further reduce padding on extra small screens */
+        width: 95%; /* Ensure overlay is responsive */
     }
 
     .overlay h1 {
@@ -135,14 +141,15 @@ body {
     }
 
     .overlay p {
-        font-size: 0.9rem; /* Further reduce font size for extra small screens */
+        font-size: 1rem; /* Further reduce font size for extra small screens */
     }
 
     .btn-call-to-action {
-        font-size: 0.9rem; /* Further reduce font size for extra small screens */
-        padding: 6px 12px; /* Further adjust padding for extra small screens */
+        font-size: 1rem; /* Further reduce font size for extra small screens */
+        padding: 8px 16px; /* Further  padding for extra small screens */
     }
 }
+
 
 /* Products section styles */
 .products-section .card-title {
@@ -156,6 +163,7 @@ body {
     font-size: 2rem;
     font-weight: 600;
     margin-bottom: 2rem;
+    text-align: center;
 }
 
 .products-section .card-text {
@@ -232,10 +240,10 @@ body {
 /* Responsive Design */
 @media (max-width: 767.98px) {
     .signup-form, .login-form {
-        padding: 1rem;
+        padding: 1rem; /* padding for smaller screens */
     }
 
     .form-control {
-        font-size: 0.9rem;
+        font-size: 0.9rem; /*  font size for smaller screens */
     }
 }
