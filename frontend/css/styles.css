@@ -55,14 +55,14 @@ body {
 }
 
 /* Home section styles */
-/* Home section styles */
 .home-section {
     position: relative; /* Relative positioning for absolute overlay */
     width: 100%; /* Full viewport width */
-    height: 100vh; /* Full viewport height */
+    height: calc(100vh - 56px); /* Full viewport height minus navbar height */
     overflow: hidden; /* Hide overflow content */
     background: url('../images/Exclusive offer.png') no-repeat center center; /* Background image */
     background-size: cover; /* Cover the container */
+    margin-top: 56px; /* Prevent overlap with navbar */
 }
 
 .overlay {
@@ -75,8 +75,8 @@ body {
     background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for readability */
     padding: 4rem; /* Increase padding for larger overlay */
     border-radius: 10px;
-    width: 80%; /*  width to be larger */
-    max-width: 1000px; /*  overlay does not stretch too wide */
+    width: 80%; /* Increase width to be larger */
+    max-width: 1000px; /* Ensure overlay does not stretch too wide */
 }
 
 .overlay h1 {
@@ -107,45 +107,47 @@ body {
 /* Responsive styles */
 @media (max-width: 768px) {
     .home-section {
-        background-size:auto; /* image maintains its aspect ratio */
-        height: 70vh;
+        height: calc(70vh - 56px); /* Increase height for smaller screens */
     }
     .overlay {
-        padding: 2rem; /*  padding on smaller screens */
-        width: 90%; /*  width for smaller screens */
+        padding: 2rem; /* Increase padding on smaller screens */
+        width: 90%; /* Increase width for smaller screens */
     }
 
     .overlay h1 {
-        font-size: 2rem; /*  font size for smaller screens */
+        font-size: 2rem; /* Increase font size for smaller screens */
     }
 
     .overlay p {
-        font-size: 1.2rem; /*  font size for smaller screens */
+        font-size: 1.2rem; /* Increase font size for smaller screens */
     }
 
     .btn-call-to-action {
-        font-size: 1.2rem; /*  font size for smaller screens */
-        padding: 10px 20px; /*  padding for smaller screens */
+        font-size: 1.2rem; /* Increase font size for smaller screens */
+        padding: 10px 20px; /* Increase padding for smaller screens */
     }
 }
 
 @media (max-width: 576px) {
+    .home-section {
+        height: calc(60vh - 56px); /* Increase height for extra small screens */
+    }
     .overlay {
-        padding: 1rem; /* Further  padding on extra small screens */
-        width: 95%; /*  overlay is responsive */
+        padding: 1rem; /* reduce padding on extra small screens */
+        width: 95%; /* Ensure overlay is responsive */
     }
 
     .overlay h1 {
-        font-size: 1.5rem; /* Further  font size for extra small screens */
+        font-size: 1.5rem; /* reduce font size for extra small screens */
     }
 
     .overlay p {
-        font-size: 1rem; /* Further  font size for extra small screens */
+        font-size: 1rem; /*  reduce font size for extra small screens */
     }
 
     .btn-call-to-action {
-        font-size: 1rem; /* Further  font size for extra small screens */
-        padding: 8px 16px; /* Further  padding for extra small screens */
+        font-size: 1rem; /*  reduce font size for extra small screens */
+        padding: 8px 16px; /*  Increase padding for extra small screens */
     }
 }
 
