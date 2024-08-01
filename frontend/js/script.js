@@ -32,51 +32,50 @@ $(document).ready(function() {
         }
         $('#cart-subtotal').text(subtotal.toFixed(2)); // Update subtotal display
     }
+// Add item to cart
+$('.add-to-cart').click(function() {
+    let card = $(this).closest('.card');
+    let productName = card.find('.card-title').text();
+    let productPrice = parseFloat(card.find('.card-text').text().replace('Ksh ', '').replace(',', ''));
+    let existingItemIndex = cart.findIndex(item => item.name === productName);
+    if (existingItemIndex > -1) {
+        alert('Item already in cart. To increase quantity, go to the cart.'); // Alert if item is already in cart
+    } else {
+        cart.push({ name: productName, price: productPrice, quantity: 1 }); // Add new item to cart
+        alert('Item added to cart successfully'); // Success alert
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart)); // Save cart to localStorage
+    updateCart(); // Update cart display
+});
 
-    // Add item to cart
-    $('.add-to-cart').click(function() {
-        let card = $(this).closest('.card');
-        let productName = card.find('.card-title').text();
-        let productPrice = parseFloat(card.find('.card-text').text().replace('Ksh ', '').replace(',', ''));
-        let existingItemIndex = cart.findIndex(item => item.name === productName);
-        if (existingItemIndex > -1) {
-            alert('Item already in cart. To increase quantity, go to the cart.'); // Alert if item is already in cart
-        } else {
-            cart.push({ name: productName, price: productPrice, quantity: 1 }); // Add new item to cart
-            alert('Item added to cart successfully'); // Success alert
-        }
-        
-        localStorage.setItem('cart', JSON.stringify(cart)); // Save cart to localStorage
-        updateCart(); // Update cart display
-    });
+// Remove item from cart
+$(document).on('click', '.remove-from-cart', function() {
+    let index = $(this).data('index');
+    cart.splice(index, 1); // Remove item from cart
+    localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart
+    updateCart(); // Update cart display
+});
 
-    // Remove item from cart
-    $(document).on('click', '.remove-from-cart', function() {
-        let index = $(this).data('index');
-        cart.splice(index, 1); // Remove item from cart
-        localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart
-        updateCart(); // Update cart display
-    });
+// Increase item quantity in cart
+$(document).on('click', '.increase-quantity', function() {
+    let index = $(this).data('index');
+    cart[index].quantity++; // Increment item quantity
+    localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart
+    updateCart(); // Update cart display
+});
 
-    // Increase item quantity in cart
-    $(document).on('click', '.increase-quantity', function() {
-        let index = $(this).data('index');
-        cart[index].quantity++; // Increment item quantity
-        localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart
-        updateCart(); // Update cart display
-    });
-
-    // Decrease item quantity in cart
-    $(document).on('click', '.decrease-quantity', function() {
-        let index = $(this).data('index');
-        if (cart[index].quantity > 1) {
-            cart[index].quantity--; // Decrement item quantity
-        } else {
-            cart.splice(index, 1); // Remove item if quantity is 1
-        }
-        localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart
-        updateCart(); // Update cart display
-    });
+// Decrease item quantity in cart
+$(document).on('click', '.decrease-quantity', function() {
+    let index = $(this).data('index');
+    if (cart[index].quantity > 1) {
+        cart[index].quantity--; // Decrement item quantity
+    } else {
+        alert('Quantity cannot be less than 1.'); // Notify the user
+    }
+    localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart
+    updateCart(); // Update cart display
+});
 
     // Placeholder for checkout functionality
     $('#checkout-button').click(function() {
