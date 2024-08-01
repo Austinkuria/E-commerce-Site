@@ -7,22 +7,22 @@ body {
 /* Navbar Styles */
 .navbar {
     background-color: #e03b00; /* Dark orange-red */
-    position: fixed;
+    position: fixed; /* Fixes the navbar at the top */
     top: 0;
-    width: 100%;
-    z-index: 1030; /*navbar is on top of other elements */
+    width: 100%; /* Full width */
+    z-index: 1030; /* Keeps navbar on top of other elements */
 }
 
 .navbar-brand {
-    color: #ffffff !important; /* White color */
+    color: #ffffff !important; /* White color for brand text */
     font-weight: 600; /* Bold font */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Text shadow for readability */
     font-size: 1.4rem; /* Larger font size */
 }
 
 .navbar .nav-link {
-    color: #ffffff !important; /* White color */
-    font-weight: 600;   /* Bold font */
+    color: #ffffff !important; /* White color for links */
+    font-weight: 600; /* Bold font */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Text shadow for readability */
     font-size: 1.2rem; /* Larger font size */
 }
@@ -35,17 +35,17 @@ body {
 
 /* Button styles */
 .btn-primary {
-    background-color: #FF4500; /* Dark orange-red */
-    border-color: #FF4500; /* Dark orange-red */
+    background-color: #FF4500; /* Dark orange-red background */
+    border-color: #FF4500; /* Dark orange-red border */
 }
 
 .btn-primary:hover {
     background-color: #e03b00; /* Darker shade on hover */
-    border-color: #e03b00; /* Darker shade on hover */
+    border-color: #e03b00; /* Darker shade border on hover */
 }
 
 .btn-secondary {
-    background-color: #343a40; /* Dark gray */
+    background-color: #343a40; /* Dark gray background */
     color: #e2e6e9; /* Light gray text color */
 }
 
@@ -57,8 +57,8 @@ body {
 /* Home section styles */
 .home-section {
     position: relative; /* Relative positioning for absolute overlay */
-    width: 100%; /* Full viewport width */
-    height: calc(100vh - 56px); /* Full viewport height minus navbar height */
+    width: 100%; /* Full width */
+    height: calc(100vh - 56px); /* Full height minus navbar height */
     overflow: hidden; /* Hide overflow content */
     background: url('../images/Home section image.jpg') no-repeat center center; /* Background image */
     background-size: cover; /* Cover the container */
@@ -70,180 +70,198 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); /* Center the overlay */
-    text-align: center;
-    color: white;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for readability */
-    padding: 4rem; /* Increase padding for larger overlay */
-    border-radius: 10px;
-    width: 80%; /* Increase width to be larger */
-    max-width: 1000px; /* Ensure overlay does not stretch too wide */
+    text-align: center; /* Center text */
+    color: white; /* White text color */
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    padding: 4rem; /* Padding for larger overlay */
+    border-radius: 10px; /* Rounded corners */
+    width: 80%; /* Overlay width */
+    max-width: 1000px; /* Max width of overlay */
 }
 
 .overlay h1 {
-    font-size: 3rem; /* Increase font size for better visibility */
-    margin-bottom: 1rem;
+    font-size: 3rem; /* Larger font size */
+    margin-bottom: 1rem; /* Space below the heading */
 }
 
 .overlay p {
-    font-size: 1.5rem; /* Increase font size for better readability */
-    margin-bottom: 2rem;
+    font-size: 1.5rem; /* Larger font size */
+    margin-bottom: 2rem; /* Space below the paragraph */
 }
 
 .btn-call-to-action {
-    display: inline-block;
-    padding: 12px 24px;
+    display: inline-block; /* Inline-block display */
+    padding: 12px 24px; /* Padding */
     background-color: #FF4500; /* Call-to-action button color */
-    color: white;
-    text-decoration: none;
-    font-size: 1.5rem; /* Increase font size for better visibility */
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+    color: white; /* White text color */
+    text-decoration: none; /* No underline */
+    font-size: 1.5rem; /* Larger font size */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
 }
 
 .btn-call-to-action:hover {
     background-color: #e03b00; /* Darker shade on hover */
 }
 
-/* Responsive styles */
+/* Responsive styles for Home Section */
 @media (max-width: 768px) {
     .home-section {
-        height: calc(70vh - 56px); /* Increase height for smaller screens */
+        height: calc(70vh - 56px); /* Height for smaller screens */
     }
     .overlay {
-        padding: 2rem; /* Increase padding on smaller screens */
-        width: 90%; /* Increase width for smaller screens */
+        padding: 2rem; /* Padding for smaller screens */
+        width: 90%; /* Width for smaller screens */
     }
 
     .overlay h1 {
-        font-size: 2rem; /* Increase font size for smaller screens */
+        font-size: 2rem; /* Font size for smaller screens */
     }
 
     .overlay p {
-        font-size: 1.2rem; /* Increase font size for smaller screens */
+        font-size: 1.2rem; /* Font size for smaller screens */
     }
 
     .btn-call-to-action {
-        font-size: 1.2rem; /* Increase font size for smaller screens */
-        padding: 10px 20px; /* Increase padding for smaller screens */
+        font-size: 1.2rem; /* Font size for smaller screens */
+        padding: 10px 20px; /* Padding for smaller screens */
+    }
+
+    .navbar .nav-link {
+        font-size: 1rem; /* Navbar link font size for smaller screens */
     }
 }
 
 @media (max-width: 576px) {
     .home-section {
-        height: calc(60vh - 56px); /* Increase height for extra small screens */
+        height: calc(60vh - 56px); /* Height for extra small screens */
     }
     .overlay {
-        padding: 1rem; /* reduce padding on extra small screens */
-        width: 95%; /* Ensure overlay is responsive */
+        padding: 1rem; /* Padding for extra small screens */
+        width: 95%; /* Width for extra small screens */
     }
 
     .overlay h1 {
-        font-size: 1.5rem; /* reduce font size for extra small screens */
+        font-size: 1.5rem; /* Font size for extra small screens */
     }
 
     .overlay p {
-        font-size: 1rem; /*  reduce font size for extra small screens */
+        font-size: 1rem; /* Font size for extra small screens */
     }
 
     .btn-call-to-action {
-        font-size: 1rem; /*  reduce font size for extra small screens */
-        padding: 8px 16px; /*  Increase padding for extra small screens */
+        font-size: 1rem; /* Font size for extra small screens */
+        padding: 8px 16px; /* Padding for extra small screens */
+    }
+
+    .navbar .nav-link {
+        font-size: 0.9rem; /* Navbar link font size for extra small screens */
     }
 }
 
 /* Products section styles */
 .products-section .card-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #FF4500;
+    font-size: 1.2rem; /* Card title font size */
+    font-weight: bold; /* Bold card title */
+    color: #FF4500; /* Card title color */
 }
 
-.products-section h2{
-    color: #FF4500;
-    font-size: 2rem;
-    font-weight: 600;
-    margin-bottom: 2rem;
-    text-align: center;
+.products-section h2 {
+    color: #FF4500; /* Section heading color */
+    font-size: 2rem; /* Section heading font size */
+    font-weight: 600; /* Section heading font weight */
+    margin-bottom: 2rem; /* Space below the heading */
+    text-align: center; /* Center the heading */
 }
 
 .products-section .card-text {
-    font-size: 1rem;
-    color: #555;
-    margin-top: auto;
+    font-size: 1rem; /* Card text font size */
+    color: #555; /* Card text color */
+    margin-top: auto; /* Space above the card text */
 }
 
 .card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
 }
 
 .card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05); /* Slight scaling on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
 }
 
 @media (max-width: 767.98px) {
     .card:hover {
-        transform: scale(1.01);
+        transform: scale(1.01); /* Less scaling on smaller screens */
     }
 }
 
 /* Footer Styles */
 .footer {
-    background-color: #e03b00;
+    background-color: #e03b00; /* Footer background color */
 }
 
 .footer a, .footer p {
-    color: #ffffff;
-    font-weight: 600;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    color: #ffffff; /* Footer text and links color */
+    font-weight: 600; /* Bold font */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Text shadow for readability */
 }
 
 .footer a:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #ffc107;
-    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white color on hover */
+    color: #ffc107; /* Yellow color on hover */
+    border-radius: 5px; /* Rounded corners on hover */
 }
 
 /* Cart modal styles */
 .modal-content {
-    background-color: #f8f9fa;
-    color: #343a40;
+    background-color: #f8f9fa; /* Modal background color */
+    color: #343a40; /* Modal text color */
 }
 
 .modal-header, .modal-footer {
-    border: none;
+    border: none; /* No border for header and footer */
 }
 
 .modal-body h5 {
-    color: #FF4500;
+    color: #FF4500; /* Modal body heading color */
 }
 
 /* Login and Signup Form Styles */
 .signup-form, .login-form {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(26, 21, 21, 0.1);
-    padding: 2rem;
+    background-color: #ffffff; /* Form background color */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(26, 21, 21, 0.1); /* Shadow effect */
+    padding: 2rem; /* Padding */
 }
 
 .signup-form h2, .login-form h2 {
-    color: #FF4500;
-    font-size: 1.8rem;
-    font-weight: 600;
+    color: #FF4500; /* Heading color */
+    font-size: 1.8rem; /* Heading font size */
+    font-weight: 600; /* Bold heading */
 }
 
 .form-control {
-    border-radius: 4px;
-    border-color: #ddd;
+    border-radius: 4px; /* Rounded corners */
+    border-color: #ddd; /* Border color */
 }
 
-/* Responsive Design */
+/* Responsive styles for Forms */
 @media (max-width: 767.98px) {
     .signup-form, .login-form {
-        padding: 1rem; /* padding for smaller screens */
+        padding: 1rem; /* Padding for smaller screens */
     }
 
     .form-control {
-        font-size: 0.9rem; /*  font size for smaller screens */
+        font-size: 0.9rem; /* Font size for form controls on smaller screens */
+    }
+}
+
+@media (max-width: 575.98px) {
+    .signup-form, .login-form {
+        padding: 0.5rem; /* Padding for extra small screens */
+    }
+
+    .form-control {
+        font-size: 0.8rem; /* Font size for form controls on extra small screens */
     }
 }
