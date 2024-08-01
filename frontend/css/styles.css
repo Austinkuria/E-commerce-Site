@@ -60,7 +60,7 @@ body {
     width: 100%; /* Full viewport width */
     height: calc(100vh - 56px); /* Full viewport height minus navbar height */
     overflow: hidden; /* Hide overflow content */
-    background: url('../images/Exclusive offer.png') no-repeat center center; /* Background image */
+    background: url('../images/Home section image.jpg') no-repeat center center; /* Background image */
     background-size: cover; /* Cover the container */
     margin-top: 56px; /* Prevent overlap with navbar */
 }
