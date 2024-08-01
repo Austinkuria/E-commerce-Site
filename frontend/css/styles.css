@@ -35,23 +35,23 @@ body {
 
 /* Button styles */
 .btn-primary {
-    background-color: #FF4500; /* Dark orange-red background */
-    border-color: #FF4500; /* Dark orange-red border */
+    background-color: #FF4500 !important; /* Dark orange-red background */
+    border-color: #FF4500 !important; /* Dark orange-red border */
 }
 
 .btn-primary:hover {
-    background-color: #e03b00; /* Darker shade on hover */
-    border-color: #e03b00; /* Darker shade border on hover */
+    background-color: #e03b00 !important; /* Darker shade on hover */
+    border-color: #e03b00 !important; /* Darker shade border on hover */
 }
 
 .btn-secondary {
-    background-color: #343a40; /* Dark gray background */
-    color: #e2e6e9; /* Light gray text color */
+    background-color: #343a40 !important; /* Dark gray background */
+    color: #e2e6e9 !important; /* Light gray text color */
 }
 
 .btn-secondary:hover {
-    background-color: #555; /* Darker shade on hover */
-    color: #e2e6e9; /* Light gray text color */
+    background-color: #555 !important; /* Darker shade on hover */
+    color: #e2e6e9 !important; /* Light gray text color */
 }
 
 /* Home section styles */
