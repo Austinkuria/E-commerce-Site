@@ -37,8 +37,7 @@ $(document).ready(function() {
     $('.add-to-cart').click(function() {
         let card = $(this).closest('.card');
         let productName = card.find('.card-title').text();
-        let productPrice = parseFloat(card.find('.card-text').text().replace('Ksh ', ''));
-
+        let productPrice = parseFloat(card.find('.card-text').text().replace('Ksh ', '').replace(',', ''));
         let existingItemIndex = cart.findIndex(item => item.name === productName);
         if (existingItemIndex > -1) {
             alert('Item already in cart. To increase quantity, go to the cart.'); // Alert if item is already in cart
