@@ -85,6 +85,7 @@ $(document).on('click', '.decrease-quantity', function() {
     updateCart(); // Initial cart update
 
     // Login form validation
+    
     $('#loginForm').on('submit', function(event) {
         event.preventDefault(); // Prevent form submission
 
