@@ -1,25 +1,23 @@
 $(document).ready(function() {
-    // Get CSRF token from meta tag
     function getCsrfToken() {
         return $('meta[name="csrf-token"]').attr('content');
     }
 
-    // Function to update cart display
     function updateCart() {
         $.ajax({
-            url: '/get-cart/', // Django URL to get cart
+            url: '/get_cart/',
             method: 'GET',
             success: function(response) {
-                $('#cart-count').text(response.cart_items.length); // Update cart item count
+                $('#cart-count').text(response.cart_items.length);
                 let cartList = $('#cart-list');
-                cartList.empty(); // Clear current cart items
+                cartList.empty();
                 let subtotal = 0;
 
                 if (response.cart_items.length === 0) {
-                    cartList.append('<li class="list-group-item text-center">Cart is empty</li>'); // Display message if cart is empty
+                    cartList.append('<li class="list-group-item text-center">Cart is empty</li>');
                 } else {
-                    response.cart_items.forEach((item, index) => {
-                        subtotal += item.price * item.quantity; // Calculate subtotal
+                    response.cart_items.forEach((item) => {
+                        subtotal += item.price * item.quantity;
                         cartList.append(`
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
@@ -35,130 +33,169 @@ $(document).ready(function() {
                         `);
                     });
                 }
-                $('#cart-subtotal').text(subtotal.toFixed(2)); // Update subtotal display
+                $('#cart-subtotal').text(subtotal.toFixed(2));
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching cart:', status, error);
             }
         });
     }
 
-    // Add item to cart
-    $('.add-to-cart').click(function() {
+    $(document).on('click', '.add-to-cart', function() {
         let productId = $(this).data('id');
         $.ajax({
-            url: '/add-to-cart/', // Django URL to add item to cart
+            url: '/add_to_cart/',
             method: 'POST',
             data: {
                 'product_id': productId,
-                'csrfmiddlewaretoken': getCsrfToken() // Include CSRF token
+                'csrfmiddlewaretoken': getCsrfToken()
             },
             success: function(response) {
                 if (response.status === 'success') {
                     alert('Item added to cart successfully');
-                    updateCart(); // Update cart display
+                    updateCart();
                 } else {
                     alert('Failed to add item to cart');
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding to cart:', status, error);
             }
         });
     });
 
-    // Remove item from cart
     $(document).on('click', '.remove-from-cart', function() {
         let productId = $(this).data('id');
         $.ajax({
-            url: '/remove-from-cart/', // Django URL to remove item from cart
+            url: '/remove_from_cart/',
             method: 'POST',
             data: {
                 'product_id': productId,
-                'csrfmiddlewaretoken': getCsrfToken() // Include CSRF token
+                'csrfmiddlewaretoken': getCsrfToken()
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    updateCart(); // Update cart display
+                    updateCart();
                 } else {
                     alert('Failed to remove item from cart');
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error removing from cart:', status, error);
             }
         });
     });
 
-    // Increase item quantity in cart
     $(document).on('click', '.increase-quantity', function() {
         let productId = $(this).data('id');
         $.ajax({
-            url: '/update-cart/', // Django URL to update item quantity
+            url: '/update_cart/',
             method: 'POST',
             data: {
                 'product_id': productId,
                 'action': 'increase',
-                'csrfmiddlewaretoken': getCsrfToken() // Include CSRF token
+                'csrfmiddlewaretoken': getCsrfToken()
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    updateCart(); // Update cart display
+                    updateCart();
                 } else {
                     alert('Failed to update item quantity');
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error increasing quantity:', status, error);
             }
         });
     });
 
-    // Decrease item quantity in cart
     $(document).on('click', '.decrease-quantity', function() {
         let productId = $(this).data('id');
         $.ajax({
-            url: '/update-cart/', // Django URL to update item quantity
+            url: '/update_cart/',
             method: 'POST',
             data: {
                 'product_id': productId,
                 'action': 'decrease',
-                'csrfmiddlewaretoken': getCsrfToken() // Include CSRF token
+                'csrfmiddlewaretoken': getCsrfToken()
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    updateCart(); // Update cart display
+                    updateCart();
                 } else {
                     alert('Failed to update item quantity');
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error decreasing quantity:', status, error);
             }
         });
     });
 
-    // Placeholder for checkout functionality
     $('#checkout-button').click(function() {
-        // Implement checkout logic
-        // ...
         alert('Checkout functionality not implemented yet.');
     });
 
-    updateCart(); // Initial cart update
+    updateCart();
 });
 
 // Products modal
-document.addEventListener('DOMContentLoaded', function () {
-    // Add event listeners to product cards
-    document.querySelectorAll('.card a').forEach(function (element) {
-        element.addEventListener('click', function (e) {
-            e.preventDefault();
-            const modal = new bootstrap.Modal(document.getElementById('productModal'));
-            const name = element.getAttribute('data-name');
-            const price = element.getAttribute('data-price');
-            const description = element.getAttribute('data-description');
-            const rating = element.getAttribute('data-rating');
-            const reviews = element.getAttribute('data-reviews');
-            const image = element.getAttribute('data-image');
-            
-            document.getElementById('modalProductName').textContent = name;
-            document.getElementById('modalProductPrice').textContent = 'Ksh ' + price;
-            document.getElementById('modalProductDescription').textContent = description;
-            document.getElementById('modalProductRating').textContent = 'Rating: ' + rating;
-            document.getElementById('modalProductReviews').textContent = 'Reviews: ' + reviews;
-            document.getElementById('modalProductImage').src = image;
+document.addEventListener('DOMContentLoaded', function() {
+    $('#productModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var name = button.data('name'); // Extract info from data-* attributes
+        var price = button.data('price');
+        var description = button.data('description');
+        var rating = button.data('rating');
+        var reviews = button.data('reviews');
+        var image = button.data('image');
 
-            modal.show();
+        // Update the modal's content.
+        var modal = $(this);
+        modal.find('#modalProductName').text(name);
+        modal.find('#modalProductPrice').text('Ksh ' + price);
+        modal.find('#modalProductDescription').text(description);
+        modal.find('#modalProductImage').attr('src', image);
+        modal.find('#modalProductReviews').text(reviews);
+
+        // Generate star rating
+        var stars = '';
+        for (var i = 0; i < 5; i++) {
+            if (i < Math.floor(rating)) {
+                stars += '<i class="bi bi-star-fill"></i>';
+            } else if (i < rating) {
+                stars += '<i class="bi bi-star-half"></i>';
+            } else {
+                stars += '<i class="bi bi-star"></i>';
+            }
+        }
+        modal.find('#modalProductRating').html(stars);
+
+        // Add event listener for add-to-cart button in the modal
+        modal.find('.add-to-cart').off('click').on('click', function() {
+            let productId = button.data('id'); // Use the ID from the button that triggered the modal
+            $.ajax({
+                url: '/add_to_cart/',
+                method: 'POST',
+                data: {
+                    'product_id': productId,
+                    'csrfmiddlewaretoken': getCsrfToken()
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert('Item added to cart successfully');
+                        updateCart();
+                    } else {
+                        alert('Failed to add item to cart');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error adding to cart:', status, error);
+                }
+            });
         });
     });
-
-})
+});
 
 // Login form validation
 $(document).ready(function() {
