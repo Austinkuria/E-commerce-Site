@@ -8,32 +8,37 @@ $(document).ready(function() {
             url: '/get_cart/',
             method: 'GET',
             success: function(response) {
-                $('#cart-count').text(response.cart_items.length);
-                let cartList = $('#cart-list');
-                cartList.empty();
-                let subtotal = 0;
+                if (response.cart_items) {
+                    $('#cart-count').text(response.cart_items.length);
+                    let cartList = $('#cart-list');
+                    cartList.empty();
+                    let subtotal = 0;
 
-                if (response.cart_items.length === 0) {
-                    cartList.append('<li class="list-group-item text-center">Cart is empty</li>');
-                } else {
-                    response.cart_items.forEach((item) => {
-                        subtotal += item.price * item.quantity;
-                        cartList.append(`
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    ${item.name} - Ksh ${item.price}
+                    if (response.cart_items.length === 0) {
+                        cartList.append('<li class="list-group-item text-center">Cart is empty</li>');
+                    } else {
+                        response.cart_items.forEach((item) => {
+                            subtotal += item.price * item.quantity;
+                            cartList.append(`
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
-                                        <button class="btn btn-sm btn-secondary decrease-quantity" data-id="${item.id}">-</button>
-                                        <span class="mx-2">${item.quantity}</span>
-                                        <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
+                                        ${item.name} - Ksh ${item.price}
+                                        <div>
+                                            <button class="btn btn-sm btn-secondary decrease-quantity" data-id="${item.id}">-</button>
+                                            <span class="mx-2">${item.quantity}</span>
+                                            <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
+                                        </div>
                                     </div>
-                                </div>
-                                <button class="btn btn-sm btn-danger remove-from-cart" data-id="${item.id}">Remove</button>
-                            </li>
-                        `);
-                    });
+                                    <button class="btn btn-sm btn-danger remove-from-cart" data-id="${item.id}">Remove</button>
+                                </li>
+                            `);
+                        });
+                    }
+                    $('#cart-subtotal').text(subtotal.toFixed(2));
+                } else {
+                    console.error('Invalid response format:', response);
+                    alert('Error updating cart');
                 }
-                $('#cart-subtotal').text(subtotal.toFixed(2));
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching cart:', status, error);
@@ -52,7 +57,7 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    alert('Item added to cart successfully');
+                    alert('Item added to cart successfully!');
                     updateCart();
                 } else {
                     alert('Failed to add item to cart');
@@ -141,16 +146,18 @@ $(document).ready(function() {
 
 // Products modal
 document.addEventListener('DOMContentLoaded', function() {
+    function getCsrfToken() {
+        return $('meta[name="csrf-token"]').attr('content');
+    }
     $('#productModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
-        var name = button.data('name'); // Extract info from data-* attributes
+        var name = button.data('name');
         var price = button.data('price');
         var description = button.data('description');
         var rating = button.data('rating');
         var reviews = button.data('reviews');
         var image = button.data('image');
 
-        // Update the modal's content.
         var modal = $(this);
         modal.find('#modalProductName').text(name);
         modal.find('#modalProductPrice').text('Ksh ' + price);
@@ -158,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.find('#modalProductImage').attr('src', image);
         modal.find('#modalProductReviews').text(reviews);
 
-        // Generate star rating
         var stars = '';
         for (var i = 0; i < 5; i++) {
             if (i < Math.floor(rating)) {
@@ -170,10 +176,52 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         modal.find('#modalProductRating').html(stars);
+        
+        function updateCart() {
+        $.ajax({
+            url: '/get_cart/',
+            method: 'GET',
+            success: function(response) {
+                if (response.cart_items) {
+                    $('#cart-count').text(response.cart_items.length);
+                    let cartList = $('#cart-list');
+                    cartList.empty();
+                    let subtotal = 0;
 
-        // Add event listener for add-to-cart button in the modal
-        modal.find('.add-to-cart').off('click').on('click', function() {
-            let productId = button.data('id'); // Use the ID from the button that triggered the modal
+                    if (response.cart_items.length === 0) {
+                        cartList.append('<li class="list-group-item text-center">Cart is empty</li>');
+                    } else {
+                        response.cart_items.forEach((item) => {
+                            subtotal += item.price * item.quantity;
+                            cartList.append(`
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        ${item.name} - Ksh ${item.price}
+                                        <div>
+                                            <button class="btn btn-sm btn-secondary decrease-quantity" data-id="${item.id}">-</button>
+                                            <span class="mx-2">${item.quantity}</span>
+                                            <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-danger remove-from-cart" data-id="${item.id}">Remove</button>
+                                </li>
+                            `);
+                        });
+                    }
+                    $('#cart-subtotal').text(subtotal.toFixed(2));
+                } else {
+                    console.error('Invalid response format:', response);
+                    alert('Error updating cart');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching cart:', status, error);
+            }
+        });
+    }
+        // Handle the add to cart action in the modal
+        $(document).off('click', '#modal-add-to-cart').on('click', '#modal-add-to-cart', function() {
+            let productId = button.data('id');
             $.ajax({
                 url: '/add_to_cart/',
                 method: 'POST',

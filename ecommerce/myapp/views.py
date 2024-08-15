@@ -1,11 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from .models import Product, Cart, CartItem
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from .forms import CustomAuthenticationForm,CustomUserCreationForm
+from .forms import CustomAuthenticationForm, CustomUserCreationForm
 
 # Create your views here.
 
@@ -14,21 +13,25 @@ def products_view(request):
     return render(request, 'index.html', {'products': products})
 
 @login_required
-@csrf_exempt
+@csrf_protect
 def add_to_cart(request):
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        product = get_object_or_404(Product, id=product_id)
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    try:
+        if request.method == 'POST':
+            product_id = request.POST.get('product_id')
+            product = get_object_or_404(Product, id=product_id)
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
         if not created:
             cart_item.quantity += 1
             cart_item.save()
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'error'})
+            return JsonResponse({'status': 'success'})
+        
+    except Exception as e:
+        print(f"Error in add_cart: {e}")
+        return JsonResponse({'status': 'error'})
 
 @login_required
-@csrf_exempt
+@csrf_protect
 def remove_from_cart(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
@@ -39,7 +42,7 @@ def remove_from_cart(request):
     return JsonResponse({'status': 'error'})
 
 @login_required
-@csrf_exempt
+@csrf_protect
 def update_cart(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
@@ -57,10 +60,21 @@ def update_cart(request):
 
 @login_required
 def get_cart(request):
-    cart = get_object_or_404(Cart, user=request.user)
-    cart_items = cart.items.all()
-    items = [{'id': item.product.id, 'name': item.product.name, 'price': item.product.price, 'quantity': item.quantity} for item in cart_items]
-    return JsonResponse({'cart_items': items})
+    try:
+        cart = get_object_or_404(Cart, user=request.user)
+        cart_items = cart.items.all()
+        items = [
+            {     
+                'id': item.product.id, 
+                'name': item.product.name, 
+                'price': item.product.price,
+                'quantity': item.quantity
+            }
+            for item in cart_items
+        ]
+        return JsonResponse({'cart_items': items})
+    except Exception as e:
+        return JsonResponse({'error':str(e)},status=500)
 
 def signup_view(request):
     if request.method == 'POST':
