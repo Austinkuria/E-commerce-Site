@@ -1,44 +1,43 @@
 $(document).ready(function() {
+    let csrfToken = getCsrfToken(); // Get the CSRF token once when the document is ready
+
+    // Function to get CSRF token
     function getCsrfToken() {
         return $('meta[name="csrf-token"]').attr('content');
     }
 
+    // Function to update the cart display
     function updateCart() {
         $.ajax({
             url: '/get_cart/',
             method: 'GET',
             success: function(response) {
-                if (response.cart_items) {
-                    $('#cart-count').text(response.cart_items.length);
-                    let cartList = $('#cart-list');
-                    cartList.empty();
-                    let subtotal = 0;
+                $('#cart-count').text(response.cart_items.length);
+                let cartList = $('#cart-list');
+                cartList.empty();
+                let subtotal = 0;
 
-                    if (response.cart_items.length === 0) {
-                        cartList.append('<li class="list-group-item text-center">Cart is empty</li>');
-                    } else {
-                        response.cart_items.forEach((item) => {
-                            subtotal += item.price * item.quantity;
-                            cartList.append(`
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        ${item.name} - Ksh ${item.price}
-                                        <div>
-                                            <button class="btn btn-sm btn-secondary decrease-quantity" data-id="${item.id}">-</button>
-                                            <span class="mx-2">${item.quantity}</span>
-                                            <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-sm btn-danger remove-from-cart" data-id="${item.id}">Remove</button>
-                                </li>
-                            `);
-                        });
-                    }
-                    $('#cart-subtotal').text(subtotal.toFixed(2));
+                if (response.cart_items.length === 0) {
+                    cartList.append('<li class="list-group-item text-center">Cart is empty</li>');
                 } else {
-                    console.error('Invalid response format:', response);
-                    alert('Error updating cart');
+                    response.cart_items.forEach((item) => {
+                        subtotal += item.price * item.quantity;
+                        cartList.append(`
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    ${item.name} - Ksh ${item.price}
+                                    <div>
+                                        <button class="btn btn-sm btn-secondary decrease-quantity" data-id="${item.id}">-</button>
+                                        <span class="mx-2">${item.quantity}</span>
+                                        <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-danger remove-from-cart" data-id="${item.id}">Remove</button>
+                            </li>
+                        `);
+                    });
                 }
+                $('#cart-subtotal').text(subtotal.toFixed(2));
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching cart:', status, error);
@@ -46,29 +45,34 @@ $(document).ready(function() {
         });
     }
 
-    $(document).on('click', '.add-to-cart', function() {
+    // Event listener for adding an item to the cart
+    $(document).on('click', '.add-to-cart, #modal-add-to-cart', function() {
         let productId = $(this).data('id');
+
+        // Ensure the product ID is valid
+        if (!productId) {
+            alert('Product ID is missing. Please try again.');
+            return;
+        }
+
         $.ajax({
             url: '/add_to_cart/',
-            method: 'POST',
+            type: 'POST',
             data: {
-                'product_id': productId,
-                'csrfmiddlewaretoken': getCsrfToken()
+                product_id: productId, // Correctly set the product ID
+                csrfmiddlewaretoken: getCsrfToken() // Use the CSRF token getter function
             },
             success: function(response) {
-                if (response.status === 'success') {
-                    alert('Item added to cart successfully!');
-                    updateCart();
-                } else {
-                    alert('Failed to add item to cart');
-                }
+                updateCart(); // Refresh the cart display after adding the item
+                console.log("Product added successfully");
             },
             error: function(xhr, status, error) {
-                console.error('Error adding to cart:', status, error);
+                console.error("Error adding to cart: " + error);
             }
         });
     });
 
+    // Event listener for removing an item from the cart
     $(document).on('click', '.remove-from-cart', function() {
         let productId = $(this).data('id');
         $.ajax({
@@ -91,14 +95,16 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.increase-quantity', function() {
+    // Event listener for increasing or decreasing item quantity
+    $(document).on('click', '.increase-quantity, .decrease-quantity', function() {
         let productId = $(this).data('id');
+        let action = $(this).hasClass('increase-quantity') ? 'increase' : 'decrease';
         $.ajax({
             url: '/update_cart/',
             method: 'POST',
             data: {
                 'product_id': productId,
-                'action': 'increase',
+                'action': action,
                 'csrfmiddlewaretoken': getCsrfToken()
             },
             success: function(response) {
@@ -109,62 +115,26 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Error increasing quantity:', status, error);
+                console.error('Error updating quantity:', status, error);
             }
         });
     });
 
-    $(document).on('click', '.decrease-quantity', function() {
-        let productId = $(this).data('id');
-        $.ajax({
-            url: '/update_cart/',
-            method: 'POST',
-            data: {
-                'product_id': productId,
-                'action': 'decrease',
-                'csrfmiddlewaretoken': getCsrfToken()
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    updateCart();
-                } else {
-                    alert('Failed to update item quantity');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error decreasing quantity:', status, error);
-            }
-        });
-    });
-
-    $('#checkout-button').click(function() {
-        alert('Checkout functionality not implemented yet.');
-    });
-
-    updateCart();
-});
-
-// Products modal
-document.addEventListener('DOMContentLoaded', function() {
-    function getCsrfToken() {
-        return $('meta[name="csrf-token"]').attr('content');
-    }
-    $('#productModal').on('show.bs.modal', function (event) {
+    // Set up the modal when it’s shown
+    $('#productModal').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
-        var name = button.data('name');
-        var price = button.data('price');
-        var description = button.data('description');
-        var rating = button.data('rating');
-        var reviews = button.data('reviews');
-        var image = button.data('image');
-
+        var productId = button.data('id'); // Extract product ID from the triggering element
         var modal = $(this);
-        modal.find('#modalProductName').text(name);
-        modal.find('#modalProductPrice').text('Ksh ' + price);
-        modal.find('#modalProductDescription').text(description);
-        modal.find('#modalProductImage').attr('src', image);
-        modal.find('#modalProductReviews').text(reviews);
 
+        // Populate modal fields
+        modal.find('#modalProductName').text(button.data('name'));
+        modal.find('#modalProductPrice').text('Ksh ' + button.data('price'));
+        modal.find('#modalProductDescription').text(button.data('description'));
+        modal.find('#modalProductImage').attr('src', button.data('image'));
+        modal.find('#modalProductReviews').text(button.data('reviews'));
+
+        // Populate star ratings
+        var rating = button.data('rating');
         var stars = '';
         for (var i = 0; i < 5; i++) {
             if (i < Math.floor(rating)) {
@@ -176,150 +146,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         modal.find('#modalProductRating').html(stars);
-        
-        function updateCart() {
-        $.ajax({
-            url: '/get_cart/',
-            method: 'GET',
-            success: function(response) {
-                if (response.cart_items) {
-                    $('#cart-count').text(response.cart_items.length);
-                    let cartList = $('#cart-list');
-                    cartList.empty();
-                    let subtotal = 0;
 
-                    if (response.cart_items.length === 0) {
-                        cartList.append('<li class="list-group-item text-center">Cart is empty</li>');
-                    } else {
-                        response.cart_items.forEach((item) => {
-                            subtotal += item.price * item.quantity;
-                            cartList.append(`
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        ${item.name} - Ksh ${item.price}
-                                        <div>
-                                            <button class="btn btn-sm btn-secondary decrease-quantity" data-id="${item.id}">-</button>
-                                            <span class="mx-2">${item.quantity}</span>
-                                            <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-sm btn-danger remove-from-cart" data-id="${item.id}">Remove</button>
-                                </li>
-                            `);
-                        });
-                    }
-                    $('#cart-subtotal').text(subtotal.toFixed(2));
-                } else {
-                    console.error('Invalid response format:', response);
-                    alert('Error updating cart');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error fetching cart:', status, error);
-            }
-        });
-    }
-        // Handle the add to cart action in the modal
-        $(document).off('click', '#modal-add-to-cart').on('click', '#modal-add-to-cart', function() {
-            let productId = button.data('id');
-            $.ajax({
-                url: '/add_to_cart/',
-                method: 'POST',
-                data: {
-                    'product_id': productId,
-                    'csrfmiddlewaretoken': getCsrfToken()
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        alert('Item added to cart successfully');
-                        updateCart();
-                    } else {
-                        alert('Failed to add item to cart');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error adding to cart:', status, error);
-                }
-            });
-        });
-    });
-});
+        // Set the correct product ID in the modal’s add-to-cart button
+        modal.find('#modal-add-to-cart').data('id', productId);
 
-// Login form validation
-$(document).ready(function() {
-    // Real-time validation for login form
-    $('#loginEmail').on('input', function() {
-        validateLoginFormField('email');
+        // Debugging: Log the product ID to ensure it’s correct
+        console.log('Product ID set in modal:', productId);
     });
 
-    $('#loginPassword').on('input', function() {
-        validateLoginFormField('password');
+    // Checkout button functionality
+    $('#checkout-button').click(function() {
+        alert('Checkout functionality not implemented yet.');
     });
 
-    // Login form submission
-    $('#loginForm').on('submit', function(event) {
-        if (!validateLoginForm()) {
-            event.preventDefault(); // Stop form submission if validation fails
-            $(this).addClass('was-validated');
-            return;
-        }
-
-        // Optionally provide user feedback
-        alert('Login successful!');
-    });
-
-    function validateLoginForm() {
-        var email = $('#loginEmail').val().trim();
-        var password = $('#loginPassword').val().trim();
-        var isValid = true;
-
-        // Email validation regex
-        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
-            $('#loginEmail').addClass('is-invalid');
-            isValid = false;
-        } else {
-            $('#loginEmail').removeClass('is-invalid');
-        }
-
-        // Password validation regex
-        var passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-        if (!passwordPattern.test(password)) {
-            $('#loginPassword').addClass('is-invalid');
-            isValid = false;
-        } else {
-            $('#loginPassword').removeClass('is-invalid');
-        }
-
-        return isValid;
-    }
-
-    function validateLoginFormField(field) {
-        var isValid = true;
-        var value = $(`#login${capitalizeFirstLetter(field)}`).val().trim();
-        
-        if (field === 'email') {
-            var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(value)) {
-                $(`#login${capitalizeFirstLetter(field)}`).addClass('is-invalid');
-                isValid = false;
-            } else {
-                $(`#login${capitalizeFirstLetter(field)}`).removeClass('is-invalid');
-            }
-        } else if (field === 'password') {
-            var passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-            if (!passwordPattern.test(value)) {
-                $(`#login${capitalizeFirstLetter(field)}`).addClass('is-invalid');
-                isValid = false;
-            } else {
-                $(`#login${capitalizeFirstLetter(field)}`).removeClass('is-invalid');
-            }
-        }
-
-        return isValid;
-    }
-
-    function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
+    // Initialize the cart when the page loads
+    updateCart();
 });
