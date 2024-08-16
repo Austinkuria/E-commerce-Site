@@ -159,6 +159,49 @@ $(document).ready(function() {
         alert('Checkout functionality not implemented yet.');
     });
 
+    // Confirmation functionality
+    $('#modal-add-to-cart').on('click', function() {
+        var productId = $(this).data('id');
+        var quantity = $('#modalProductQuantity').val();
+        var productName = $('#modalProductName').text();
+     //snackbar functionality
+        function showSnackbar(message) {
+            var snackbar = $('#snackbar');
+            snackbar.text(message);
+            snackbar.addClass('show');
+            setTimeout(function() {
+                snackbar.removeClass('show');
+            }, 3000);
+        }       
+        // Show a confirmation dialog
+        if (confirm(`Do you want to add ${quantity} x "${productName}" to your cart?`)) {
+            // Proceed to add to cart
+            $.ajax({
+                url: '/add_to_cart/',
+                type: 'POST',
+                data: {
+                    product_id: productId,
+                    quantity: quantity,
+                    csrfmiddlewaretoken: getCsrfToken()
+                },
+                success: function(response) {
+                    // Show a snackbar or tooltip notification
+                    showSnackbar("Product added to cart successfully!");
+    
+                    // Optionally close the modal
+                    $('#productModal').modal('hide');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error adding to cart: " + error);
+                }
+            });
+        }
+    });
+
+   
+
     // Initialize the cart when the page loads
     updateCart();
 });
+
+ 

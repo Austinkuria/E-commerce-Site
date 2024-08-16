@@ -17,6 +17,8 @@ def products_view(request):
 def add_to_cart(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
+        quantity = int(request.POST.get('quantity', 1))  # Default to 1 if quantity is not provided
+
         if not product_id:
             return HttpResponseBadRequest("Product ID is required")
 
@@ -24,17 +26,10 @@ def add_to_cart(request):
             product = get_object_or_404(Product, id=product_id)
             cart, created = Cart.objects.get_or_create(user=request.user)
             cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+            cart_item.quantity += quantity
+            cart_item.save()
 
-            if created:
-                cart_item.quantity = 1
-                cart_item.save()
-                message = 'Product added to cart'
-            else:
-                cart_item.quantity += 1
-                cart_item.save()
-                message = 'Product quantity updated in cart'
-
-            return JsonResponse({'status': 'success', 'message': message, 'exists': not created})
+            return JsonResponse({'status': 'success', 'message': 'Product added to cart'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
