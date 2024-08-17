@@ -1,6 +1,14 @@
 $(document).ready(function() {
     let csrfToken = getCsrfToken(); // Get the CSRF token once when the document is ready
 
+    // Cache jQuery selectors
+    var $cartList = $('#cart-list');
+    var $cartCount = $('#cart-count');
+    var $cartSubtotal = $('#cart-subtotal');
+    var $productModal = $('#productModal');
+    var $checkoutButton = $('#checkout-button');
+    var $orderNowButton = $('#order-now-button');
+
     // Function to get CSRF token
     function getCsrfToken() {
         return $('meta[name="csrf-token"]').attr('content');
@@ -12,17 +20,16 @@ $(document).ready(function() {
             url: '/get_cart/',
             method: 'GET',
             success: function(response) {
-                $('#cart-count').text(response.cart_items.length);
-                let cartList = $('#cart-list');
-                cartList.empty();
+                $cartCount.text(response.cart_items.length);
+                $cartList.empty();
                 let subtotal = 0;
 
                 if (response.cart_items.length === 0) {
-                    cartList.append('<li class="list-group-item text-center">Cart is empty</li>');
+                    $cartList.append('<li class="list-group-item text-center">Cart is empty</li>');
                 } else {
                     response.cart_items.forEach((item) => {
                         subtotal += item.price * item.quantity;
-                        cartList.append(`
+                        $cartList.append(`
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     ${item.name} - Ksh ${item.price}
@@ -37,7 +44,7 @@ $(document).ready(function() {
                         `);
                     });
                 }
-                $('#cart-subtotal').text(subtotal.toFixed(2));
+                $cartSubtotal.text(subtotal.toFixed(2));
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching cart:', status, error);
@@ -45,11 +52,9 @@ $(document).ready(function() {
         });
     }
 
-    // Event listener for adding an item to the cart
+    // Event listeners for actions
     $(document).on('click', '.add-to-cart, #modal-add-to-cart', function() {
         let productId = $(this).data('id');
-
-        // Ensure the product ID is valid
         if (!productId) {
             alert('Product ID is missing. Please try again.');
             return;
@@ -59,11 +64,11 @@ $(document).ready(function() {
             url: '/add_to_cart/',
             type: 'POST',
             data: {
-                product_id: productId, // Correctly set the product ID
-                csrfmiddlewaretoken: getCsrfToken() // Use the CSRF token getter function
+                product_id: productId,
+                csrfmiddlewaretoken: getCsrfToken()
             },
             success: function(response) {
-                updateCart(); // Refresh the cart display after adding the item
+                updateCart();
                 console.log("Product added successfully");
             },
             error: function(xhr, status, error) {
@@ -72,7 +77,6 @@ $(document).ready(function() {
         });
     });
 
-    // Event listener for removing an item from the cart
     $(document).on('click', '.remove-from-cart', function() {
         let productId = $(this).data('id');
         $.ajax({
@@ -95,7 +99,6 @@ $(document).ready(function() {
         });
     });
 
-    // Event listener for increasing or decreasing item quantity
     $(document).on('click', '.increase-quantity, .decrease-quantity', function() {
         let productId = $(this).data('id');
         let action = $(this).hasClass('increase-quantity') ? 'increase' : 'decrease';
@@ -120,20 +123,17 @@ $(document).ready(function() {
         });
     });
 
-    // Set up the modal when it’s shown
-    $('#productModal').on('show.bs.modal', function(event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var productId = button.data('id'); // Extract product ID from the triggering element
+    $productModal.on('show.bs.modal', function(event) {
+        var button = $(event.relatedTarget);
+        var productId = button.data('id');
         var modal = $(this);
 
-        // Populate modal fields
         modal.find('#modalProductName').text(button.data('name'));
         modal.find('#modalProductPrice').text('Ksh ' + button.data('price'));
         modal.find('#modalProductDescription').text(button.data('description'));
         modal.find('#modalProductImage').attr('src', button.data('image'));
         modal.find('#modalProductReviews').text(button.data('reviews'));
 
-        // Populate star ratings
         var rating = button.data('rating');
         var stars = '';
         for (var i = 0; i < 5; i++) {
@@ -147,24 +147,20 @@ $(document).ready(function() {
         }
         modal.find('#modalProductRating').html(stars);
 
-        // Set the correct product ID in the modal’s add-to-cart button
         modal.find('#modal-add-to-cart').data('id', productId);
 
-        // Debugging: Log the product ID to ensure it’s correct
         console.log('Product ID set in modal:', productId);
     });
 
-    // Checkout button functionality
     $('#checkout-button').click(function() {
         alert('Checkout functionality not implemented yet.');
     });
 
-    // Confirmation functionality
     $('#modal-add-to-cart').on('click', function() {
         var productId = $(this).data('id');
         var quantity = $('#modalProductQuantity').val();
         var productName = $('#modalProductName').text();
-     //snackbar functionality
+
         function showSnackbar(message) {
             var snackbar = $('#snackbar');
             snackbar.text(message);
@@ -172,10 +168,9 @@ $(document).ready(function() {
             setTimeout(function() {
                 snackbar.removeClass('show');
             }, 3000);
-        }       
-        // Show a confirmation dialog
+        }
+
         if (confirm(`Do you want to add ${quantity} x "${productName}" to your cart?`)) {
-            // Proceed to add to cart
             $.ajax({
                 url: '/add_to_cart/',
                 type: 'POST',
@@ -185,11 +180,8 @@ $(document).ready(function() {
                     csrfmiddlewaretoken: getCsrfToken()
                 },
                 success: function(response) {
-                    // Show a snackbar or tooltip notification
                     showSnackbar("Product added to cart successfully!");
-    
-                    // Optionally close the modal
-                    $('#productModal').modal('hide');
+                    $productModal.modal('hide');
                 },
                 error: function(xhr, status, error) {
                     console.error("Error adding to cart: " + error);
@@ -198,10 +190,41 @@ $(document).ready(function() {
         }
     });
 
-   
+    ($orderNowButton).on('click', function() {
+        var checkoutUrl = $(this).data('url');
+        $productModal.modal('hide');
+        $.ajax({
+            url: '/is_logged_in/',
+            type: 'GET',
+            success: function(response) {
+                if (response.is_authenticated) {
+                    $('#checkoutModal').modal('show');
+                } else {
+                    window.location.href = '/login/';
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error checking login status: " + error);
+            }
+        });
+    });
 
-    // Initialize the cart when the page loads
     updateCart();
 });
+$(document).ready(function() {
+    $('#signUpForm input').on('keyup', function() {
+        let $input = $(this);
+        if ($input.val().trim() === '') {
+            $input.addClass('is-invalid').removeClass('is-valid');
+        } else {
+            $input.removeClass('is-invalid').addClass('is-valid');
+        }
+    });
 
- 
+    $('#signUpForm').on('submit', function(e) {
+        if (!this.checkValidity()) {
+            e.preventDefault();  // Prevent form submission if client-side validation fails
+            $(this).addClass('was-validated');
+        }
+    });
+});

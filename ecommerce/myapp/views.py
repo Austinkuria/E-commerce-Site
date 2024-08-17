@@ -4,8 +4,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 from .models import Product, Cart, CartItem
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomAuthenticationForm, CustomUserCreationForm
-
 # Create your views here.
 
 def products_view(request):
@@ -95,9 +95,12 @@ def signup_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')  # Redirect after successful signup
+            return redirect('index')
+        else:
+            print(form.errors)  # Debugging: Print out form errors if validation fails
     else:
         form = CustomUserCreationForm()
+        
     return render(request, 'signup.html', {'form': form})
 
 def login_view(request):
@@ -106,7 +109,34 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('home')  # Redirect after successful login
+            return redirect('index')  # Redirect after successful login
     else:
         form = CustomAuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+# Return whether the user is logged in or not
+def is_logged_in(request):
+    return JsonResponse({'is_authenticated': request.user.is_authenticated})
+
+# Render the checkout modal when the user is logged in.
+@login_required
+def checkout_modal(request):
+    return render(request, 'checkout_modal.html')
+
+# Process the order when the user submits the form.
+@login_required
+def checkout(request):
+    if request.method == 'POST':
+        
+        shipping_address = request.POST.get('shipping_address')
+
+        # Process the order...
+
+        return redirect('order_confirmation')  # Redirect to an order confirmation page
+
+    return redirect('home')  # Redirect to home if the request method is not POST
+
+# Create an order confirmation page that the user is redirected to after a successful checkout
+@login_required
+def order_confirmation(request):
+    return render(request, 'order_confirmation.html')

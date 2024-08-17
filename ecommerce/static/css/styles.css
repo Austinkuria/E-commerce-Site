@@ -258,12 +258,15 @@ body {
     color: #FF4500; /* Modal body heading color */
 }
 
+
+
 /* Login and Signup Form Styles */
 .signup-form, .login-form {
     background-color: #ffffff; /* Form background color */
     border-radius: 8px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(26, 21, 21, 0.1); /* Shadow effect */
     padding: 2rem; /* Padding */
+    margin-bottom: 10px;
 }
 
 .signup-form h2, .login-form h2 {
@@ -275,6 +278,12 @@ body {
 .form-control {
     border-radius: 4px; /* Rounded corners */
     border-color: #ddd; /* Border color */
+    margin-bottom: 10px;
+}
+
+.invalid-feedback {
+    color: red;
+    font-size: 0.875em;
 }
 
 /* Responsive styles for Forms */
