@@ -45,6 +45,9 @@
               <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+            </li>
+            <li class="nav-item">
               <a
                 class="nav-link"
                 href="#"
@@ -145,9 +148,7 @@
             >
               Close
             </button>
-            <button type="button" class="btn btn-primary" id="checkout-button">
-              Checkout
-            </button>
+            <button class="btn btn-secondary" onclick="window.location.href= '/checkout/'">Checkout</button>
           </div>
         </div>
       </div>
@@ -200,9 +201,7 @@
             >
               Add to Cart
             </button>
-            <button class="btn btn-secondary mt-3" 
-            id="order-now-button"
-            data-url="{% url 'checkout_modal' %}">Order Now</button>
+            <button class="btn btn-secondary mt-3" onclick="window.location.href= '/checkout/'">Order Now</button>
           </div>
         </div>
       </div>
@@ -214,32 +213,6 @@
 <!-- snackbar start -->
 <div id ="snackbar">Product added to cart</div>
 <!-- snackbar end -->
-
-<!-- Checkout modal start -->
-<!-- This modal will be shown after the user clicks "Order Now" and is logged in -->
-<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="checkoutModalLabel">Checkout</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- Add your checkout form or details here -->
-        <form action="{% url 'checkout' %}" method="POST">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="shipping-address" class="form-label">Shipping Address</label>
-                <input type="text" class="form-control" id="shipping-address" name="shipping_address" required>
-            </div>
-            <!-- Add other checkout fields as needed -->
-            <button type="submit" class="btn btn-primary">Proceed to Checkout</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Checkout modal end -->
 
     <!-- Footer start -->
     <footer class="footer text-center text-lg-start">

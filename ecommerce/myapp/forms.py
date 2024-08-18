@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.validators import RegexValidator
 from .models import ShippingDetails
 class CustomUserCreationForm(forms.ModelForm):
@@ -41,6 +42,23 @@ class CustomUserCreationForm(forms.ModelForm):
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Passwords don't match")
         return password2
+    
+class CustomLoginForm(AuthenticationForm):
+    username = forms.CharField(
+        max_length=150,
+        validators=[RegexValidator(
+            regex=r'^[\w.@+-]+$',
+            message='Username can only contain letters, digits, and @/./+/-/_ characters.'
+        )]
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput,
+        validators=[RegexValidator(
+            regex=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',
+            message='Password must be at least 8 characters long and include both letters and numbers.'
+        )]
+    )
+
 class ShippingDetailsForm(forms.ModelForm):
     city = forms.CharField(
         max_length=100,
