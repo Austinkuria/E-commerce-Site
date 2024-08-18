@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Product
-
+from .models import ShippingDetails
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'image_tag', 'rating')  # Display these fields in the list view
     search_fields = ('name',)  # Add a search bar for the 'name' field
@@ -19,3 +19,4 @@ class ProductAdmin(admin.ModelAdmin):
     image_tag.short_description = 'Image'
 
 admin.site.register(Product, ProductAdmin)
+admin.site.register(ShippingDetails)

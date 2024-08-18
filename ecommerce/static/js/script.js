@@ -211,20 +211,3 @@ $(document).ready(function() {
 
     updateCart();
 });
-$(document).ready(function() {
-    $('#signUpForm input').on('keyup', function() {
-        let $input = $(this);
-        if ($input.val().trim() === '') {
-            $input.addClass('is-invalid').removeClass('is-valid');
-        } else {
-            $input.removeClass('is-invalid').addClass('is-valid');
-        }
-    });
-
-    $('#signUpForm').on('submit', function(e) {
-        if (!this.checkValidity()) {
-            e.preventDefault();  // Prevent form submission if client-side validation fails
-            $(this).addClass('was-validated');
-        }
-    });
-});

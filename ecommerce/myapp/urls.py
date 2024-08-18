@@ -14,5 +14,5 @@ urlpatterns = [
     path('is_logged_in/', views.is_logged_in, name='is_logged_in'),
     path('checkout_modal/', views.checkout_modal, name='checkout_modal'),
     path('checkout/', views.checkout, name='checkout'),
-    path('order_confirmation/', views.order_confirmation, name='order_confirmation'),
+    path('order_confirmation/', views.order_confirmation, name='order_confirmation'),  path('shipping/', views.shipping_view, name='shipping'),
 ]

@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Product, Cart, CartItem
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
-from .forms import CustomAuthenticationForm, CustomUserCreationForm
+from .forms import CustomUserCreationForm, ShippingDetailsForm
 # Create your views here.
 
 def products_view(request):
@@ -89,20 +89,20 @@ def get_cart(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=password)
             login(request, user)
-            return redirect('index')
-        else:
-            print(form.errors)  # Debugging: Print out form errors if validation fails
+            return redirect('shipping')  # Redirect to the shipping details form after signup
     else:
         form = CustomUserCreationForm()
-        
     return render(request, 'signup.html', {'form': form})
-
 def login_view(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
@@ -140,3 +140,15 @@ def checkout(request):
 @login_required
 def order_confirmation(request):
     return render(request, 'order_confirmation.html')
+@login_required
+def shipping_view(request):
+    if request.method == 'POST':
+        form = ShippingDetailsForm(request.POST)
+        if form.is_valid():
+            shipping_details = form.save(commit=False)
+            shipping_details.user = request.user
+            shipping_details.save()
+            return redirect('some_next_page')
+    else:
+        form = ShippingDetailsForm()
+    return render(request, 'shipping.html', {'form': form})
