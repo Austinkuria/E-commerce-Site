@@ -1,3 +1,4 @@
+from pyexpat.errors import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_protect
@@ -5,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Product, Cart, CartItem, Order, OrderItem
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import CustomUserCreationForm, ShippingDetailsForm, CustomLoginForm
+from .forms import CustomUserCreationForm, CustomLoginForm, CheckoutForm
 # Create your views here.
 
 def products_view(request):
@@ -74,18 +75,21 @@ def update_cart(request):
 @login_required
 def get_cart(request):
     try:
-        cart = get_object_or_404(Cart, user=request.user)
-        cart_items = cart.items.all()
-        items = [
-            {     
-                'id': item.product.id, 
-                'name': item.product.name, 
+        cart = Cart.objects.get(user=request.user)
+        cart_items = CartItem.objects.filter(cart=cart).select_related('product')
+
+        items = []
+        for item in cart_items:
+            items.append({
+                'id': item.id,
+                'name': item.product.name,
                 'price': item.product.price,
                 'quantity': item.quantity
-            }
-            for item in cart_items
-        ]
+            })
+
         return JsonResponse({'cart_items': items})
+    except Cart.DoesNotExist:
+        return JsonResponse({'cart_items': []})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -98,7 +102,7 @@ def signup_view(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             login(request, user)
-            return redirect('shipping')  # Redirect to the shipping details form after signup
+            return redirect('checkout')  # Redirect to the shipping details form after signup
     else:
         form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
@@ -121,49 +125,36 @@ def login_view(request):
 def is_logged_in(request):
     return JsonResponse({'is_authenticated': request.user.is_authenticated})
 
-# Render the checkout modal when the user is logged in.
+# Render the checkout when the user is logged in.
 @login_required
-def checkout(request):
+@csrf_protect
+def checkout_view(request):
+    cart = Cart.objects.get(user=request.user)
+    cart_items = CartItem.objects.filter(cart=cart)
+
+    if not cart_items.exists():
+        messages.warning(request, "Your cart is empty.")
+        return redirect('cart')
+
+    total = sum(item.get_total_price() for item in cart_items)
+
     if request.method == 'POST':
-        address = request.POST['address']
-        city = request.POST['city']
-        postal_code = request.POST['postal_code']
-        
-        # Assume cart data is stored in session
-        cart = request.session.get('cart', {})
-        
-        if not cart:
-            return redirect('cart')  # Redirect to cart if it's empty
-        
-        # Calculate total price
-        total = sum(item['price'] * item['quantity'] for item in cart['items'])
-        
-        # Create an order
-        order = Order.objects.create(
-            user=request.user,
-            total=total,
-            address=address,
-            city=city,
-            postal_code=postal_code
-        )
-        
-        # Create order items
-        for item in cart['items']:
-            product = Product.objects.get(id=item['product_id'])
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                quantity=item['quantity']
-            )
-        
-        # Clear the cart
-        request.session['cart'] = {}
-        
-        return redirect('order_confirmation')  # Redirect to order confirmation page
-    
-    # Render checkout page with cart data
-    cart = request.session.get('cart', {})
-    return render(request, 'checkout.html', {'cart': cart})
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            # Save order and order details here
+            # Clear the cart after successful checkout
+            cart_items.delete()
+            messages.success(request, "Order placed successfully!")
+            return redirect('order_confirmation')
+    else:
+        form = CheckoutForm()
+
+    return render(request, 'checkout.html', {
+        'form': form,
+        'cart_items': cart_items,
+        'total': total
+    })
+
 @login_required
 def place_order(request):
     if request.method == 'POST':
@@ -174,8 +165,8 @@ def place_order(request):
         # Assume cart data is stored in session
         cart = request.session.get('cart', {})
         
-        if not cart:
-            return redirect('cart')  # Redirect to cart if it's empty
+        if not cart or not cart.get('items'):
+            return redirect('checkout')  # Redirect to the checkout page if the cart is empty
         
         # Calculate total price
         total = sum(item['price'] * item['quantity'] for item in cart['items'])
@@ -209,15 +200,3 @@ def place_order(request):
 @login_required
 def order_confirmation(request):
     return render(request, 'order_confirmation.html')
-@login_required
-def shipping_view(request):
-    if request.method == 'POST':
-        form = ShippingDetailsForm(request.POST)
-        if form.is_valid():
-            shipping_details = form.save(commit=False)
-            shipping_details.user = request.user
-            shipping_details.save()
-            return redirect('some_next_page')
-    else:
-        form = ShippingDetailsForm()
-    return render(request, 'shipping.html', {'form': form})

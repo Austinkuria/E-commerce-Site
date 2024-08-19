@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.validators import RegexValidator
-from .models import ShippingDetails
 class CustomUserCreationForm(forms.ModelForm):
     username = forms.CharField(
         max_length=150,
@@ -59,29 +58,23 @@ class CustomLoginForm(AuthenticationForm):
         )]
     )
 
-class ShippingDetailsForm(forms.ModelForm):
-    city = forms.CharField(
-        max_length=100,
-        validators=[RegexValidator(
-            regex=r'^[a-zA-Z\s]+$',
-            message='City name can only contain letters and spaces.'
-        )]
-    )
+class CheckoutForm(forms.Form):
     address = forms.CharField(
         max_length=255,
-        validators=[RegexValidator(
-            regex=r'^[a-zA-Z0-9\s,.-]+$',
-            message='Address can only contain letters, numbers, spaces, commas, periods, and hyphens.'
-        )]
+        validators=[RegexValidator(r'^[a-zA-Z0-9\s,.-]+$', 'Enter a valid address.')]
+    )
+    city = forms.CharField(
+        max_length=100,
+        validators=[RegexValidator(r'^[a-zA-Z\s]+$', 'Enter a valid city name.')]
     )
     postal_code = forms.CharField(
         max_length=20,
-        validators=[RegexValidator(
-            regex=r'^[a-zA-Z0-9\s-]+$',
-            message='Postal code can only contain letters, numbers, spaces, and hyphens.'
-        )]
+        validators=[RegexValidator(r'^\d{5}(-\d{4})?$|^[A-Z]\d[A-Z] \d[A-Z]\d$', 'Enter a valid postal code.')]
     )
 
-    class Meta:
-        model = ShippingDetails
-        fields = ['city', 'address', 'postal_code']
+    # Optional: Add more fields if needed
+    # Example: Add a phone number field
+    phone_number = forms.CharField(
+        max_length=15,
+        validators=[RegexValidator(r'^\+?\d{10,15}$', 'Enter a valid phone number.')]
+    )
