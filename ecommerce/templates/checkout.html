@@ -25,7 +25,19 @@
                                 <li>{{ item.quantity }} x {{ item.product.name }}: ${{ item.get_total_price }}</li>
                             {% endfor %}
                         </ul>
-                        <p>Total: ${{ total }}</p>
+                        <p>Shipping Fee: Ksh {{ order.shipping_fee }}</p>
+                        <p>Total: Ksh {{ order.total_price }}</p>
+                        <fieldset>
+                            <legend>Payment Method</legend>
+                            <label>
+                                <input type="radio" name="payment_method" value="mpesa" checked>
+                                M-Pesa
+                            </label>
+                            <label>
+                                <input type="radio" name="payment_method" value="visa">
+                                Visa
+                            </label>
+                        </fieldset>
                         <button type="submit" class="btn btn-primary mt-3">Place Order</button>
                     </form>
                 </div>
