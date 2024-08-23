@@ -152,6 +152,10 @@ $(document).ready(function() {
         console.log('Product ID set in modal:', productId);
     });
 
+    $('#checkout-button').click(function() {
+        alert('Checkout functionality not implemented yet.');
+    });
+
     $('#modal-add-to-cart').on('click', function() {
         var productId = $(this).data('id');
         var quantity = $('#modalProductQuantity').val();
@@ -185,5 +189,25 @@ $(document).ready(function() {
             });
         }
     });
+
+    $orderNowButton.on('click', function() {
+        var checkoutUrl = $(this).data('url');
+        $productModal.modal('hide');
+        $.ajax({
+            url: '/is_logged_in/',
+            type: 'GET',
+            success: function(response) {
+                if (response.is_authenticated) {
+                    $('#checkoutModal').modal('show');
+                } else {
+                    window.location.href = '/login/';
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error checking login status: " + error);
+            }
+        });
+    });
+
     updateCart();
-})
+});
