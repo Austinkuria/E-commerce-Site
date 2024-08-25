@@ -1,291 +1,123 @@
-<<<<<<< HEAD
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.urls import reverse  # To get the URL for admin:index
-from django.db import transaction
 from .models import Product, Cart, CartItem, Order, OrderItem, Profile
 from .forms import CustomUserCreationForm, CustomLoginForm, UserUpdateForm, ProfileUpdateForm, CheckoutForm
 import logging
 import json
-
-=======
-from django.contrib import messages
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponseForbidden, JsonResponse, HttpResponseBadRequest
-from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth.decorators import login_required
-from .models import Product, Cart, CartItem, Order, OrderItem,ShippingDetails, Payment
-from django.contrib.auth import authenticate, login, logout
-from .models import Product, Profile
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import CustomUserCreationForm, CustomLoginForm, UserUpdateForm, ProfileUpdateForm, CheckoutForm
-from django.db import transaction
-import logging
-
-# Create your views here.
-
-
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
+from django.middleware.csrf import get_token
 logger = logging.getLogger(__name__)
 
 # Products View
 def products_view(request):
     products = Product.objects.all()
     return render(request, 'index.html', {'products': products})
-
-# Add to Cart View
-@transaction.atomic
-<<<<<<< HEAD
-# @login_required
-=======
 @login_required
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
-@csrf_protect
-def add_to_cart(request):
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        quantity = int(request.POST.get('quantity', 1))
-<<<<<<< HEAD
-        product = get_object_or_404(Product, id=product_id)
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        if not created:
-            cart_item.quantity += quantity
-        else:
-            cart_item.quantity = quantity
-        cart_item.save()
-        return JsonResponse({'status': 'success'})
-    if request.method == 'POST':
-=======
-
-        if not product_id:
-            return HttpResponseBadRequest("Product ID is required")
-
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
-        try:
-            product = get_object_or_404(Product, id=product_id)
-            if not product.is_in_stock():
-                return JsonResponse({'status': 'error', 'message': 'Product is out of stock'}, status=400)
-
-<<<<<<< HEAD
-            if not product_id or not quantity:
-                return JsonResponse({'status': 'error', 'message': 'Product ID and quantity are required'}, status=400)
-            
-            quantity = int(quantity)
-            product = Product.objects.get(id=product_id)
-            cart, created = Cart.objects.get_or_create(user=request.user)
-            cart.add_item(product, quantity)
-
-            if not created:
-                cart_item.quantity += quantity
-            else:
-                cart_item.quantity = quantity
-            cart_item.save()
-
-            return JsonResponse({'status': 'success', 'message': 'Product added to cart successfully!'})
-=======
-            cart, created = Cart.objects.get_or_create(user=request.user)
-            cart.add_item(product, quantity)
-
-            return JsonResponse({'status': 'success', 'message': 'Product added to cart'})
-        except Exception as e:
-            logger.error(f"Error adding product to cart: {e}")
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
-
-        except Product.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Product not found'}, status=404)
-        except Exception as e:
-            logger.error(f'Error adding product to cart: {e}')
-            return JsonResponse({'status': 'error', 'message': 'An error occurred'}, status=500)
-
-# Remove from Cart View
-@login_required
-@csrf_protect
-def remove_from_cart(request):
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        if not product_id:
-            return HttpResponseBadRequest("Product ID is required")
-<<<<<<< HEAD
-        product = get_object_or_404(Product, id=product_id)
-        cart = get_object_or_404(Cart, user=request.user)
-        cart_item = CartItem.objects.filter(cart=cart, product=product).first()
-        if cart_item:
-            cart_item.delete()
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'error'})
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            product_id = data.get('product_id')
-            
-            if not product_id:
-                return JsonResponse({'status': 'error', 'message': 'Product ID is required'}, status=400)
-            
-            cart = Cart.objects.get(user=request.user)
-            cart_item = CartItem.objects.filter(cart=cart, product_id=product_id).first()
-            
-            if cart_item:
-                cart_item.delete()
-                return JsonResponse({'status': 'success', 'message': 'Item removed from cart successfully!'})
-            else:
-                return JsonResponse({'status': 'error', 'message': 'Item not found in cart'}, status=404)
-        except Exception as e:
-            logger.error(f"Error removing product from cart: {e}")
-            return JsonResponse({'status': 'error', 'message': 'Internal server error'}, status=500)
-
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
-
-=======
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
-
-        try:
-            product = Product.objects.get(id=product_id)
-            cart = Cart.objects.get(user=request.user)
-            cart_item = CartItem.objects.filter(cart=cart, product=product).first()
-            if cart_item:
-                cart_item.delete()
-            return JsonResponse({'status': 'success'})
-        except Product.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Product not found'}, status=404)
-        except Cart.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Cart not found'}, status=404)
-        except Exception as e:
-            logger.error(f"Error removing product from cart: {e}")
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
-    return JsonResponse({'status': 'error'}, status=400)
-
-# Update Cart View
-@login_required
-@csrf_protect
-def update_cart(request):
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        action = request.POST.get('action')
-        if not product_id or action not in ['increase', 'decrease']:
-            return HttpResponseBadRequest("Invalid parameters")
-
-<<<<<<< HEAD
-        product = get_object_or_404(Product, id=product_id)
-        cart = get_object_or_404(Cart, user=request.user)
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        if action == 'increase':
-            cart_item.quantity += 1
-        elif action == 'decrease' and cart_item.quantity > 1:
-            cart_item.quantity -= 1
-        cart_item.save()
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'error'})
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            product_id = data.get('product_id')
-            action = data.get('action')
-            
-            if not product_id or action not in ['increase', 'decrease']:
-                return JsonResponse({'status': 'error', 'message': 'Invalid product ID or action'}, status=400)
-            
-            product = Product.objects.get(id=product_id)
-            cart = Cart.objects.get(user=request.user)
-            cart_item = CartItem.objects.filter(cart=cart, product=product).first()
-            
-            if cart_item:
-                if action == 'increase':
-                    cart_item.quantity += 1
-                elif action == 'decrease' and cart_item.quantity > 1:
-                    cart_item.quantity -= 1
-                cart_item.save()
-                return JsonResponse({'status': 'success', 'message': 'Cart updated successfully!'})
-            else:
-                return JsonResponse({'status': 'error', 'message': 'Cart item not found'}, status=404)
-        except Product.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Product not found'}, status=404)
-        except Exception as e:
-            logger.error(f"Error updating cart: {e}")
-            return JsonResponse({'status': 'error', 'message': 'Internal server error'}, status=500)
-
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
-=======
-        try:
-            product = Product.objects.get(id=product_id)
-            cart = Cart.objects.get(user=request.user)
-            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-            if action == 'increase':
-                cart_item.quantity += 1
-            elif action == 'decrease' and cart_item.quantity > 1:
-                cart_item.quantity -= 1
-            cart_item.save()
-            return JsonResponse({'status': 'success'})
-        except Product.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Product not found'}, status=404)
-        except Cart.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Cart not found'}, status=404)
-        except Exception as e:
-            logger.error(f"Error updating cart: {e}")
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
-
-    return JsonResponse({'status': 'error'}, status=400)
-
-# Get Cart View
-@login_required
-@csrf_protect
 def get_cart(request):
-    try:
-        cart = Cart.objects.get(user=request.user)
-        cart_items = CartItem.objects.filter(cart=cart).select_related('product')
-
-        items = [{
-            'id': item.id,
+    # Retrieve the user's cart
+    cart = get_object_or_404(Cart, user=request.user)
+    
+    # Retrieve all items in the cart
+    cart_items = CartItem.objects.filter(cart=cart)
+    
+    # Prepare cart items data for JSON response
+    cart_items_data = [
+        {
+            'id': item.product.id,
             'name': item.product.name,
             'price': item.product.price,
             'quantity': item.quantity
-        } for item in cart_items]
+        }
+        for item in cart_items
+    ]
+    
+    return JsonResponse({'cart_items': cart_items_data})
 
-        total = sum(item.product.price * item.quantity for item in cart_items)
-        return JsonResponse({'cart_items': items, 'total': total})
+@csrf_exempt
+def add_to_cart(request):
+    if request.method == 'POST':
+        product_id = int(request.POST.get('product_id'))
+        quantity = int(request.POST.get('quantity')) 
+        product = get_object_or_404(Product, id=product_id)
+    
+        # Retrieve or create the user's cart
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        
+        # Retrieve or create a CartItem for this product in the user's cart
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+        if not created:
+            # If the item was already in the cart, update the quantity
+            cart_item.increase_quantity(quantity)
+        else:
+            # If the item was just created, set the initial quantity
+            cart_item.quantity = quantity
+            cart_item.save()
+        
+        return JsonResponse({'status': 'success'})
+    
+    return JsonResponse({'status': 'error'}, status=400)
 
-<<<<<<< HEAD
-    except Cart.DoesNotExist:
-        return JsonResponse({'cart_items': [], 'total': 0})
 
-    except Exception as e:
-        logger.error(f"Error fetching cart: {e}")
-        return JsonResponse({'status': 'error', 'message': 'Internal server error'}, status=500)
+@csrf_exempt
+def remove_from_cart(request):
+    if request.method == 'POST':
+        product_id = int(request.POST.get('product_id'))
+        cart = get_object_or_404(Cart, user=request.user)  # Get the cart for the current user
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Get the cart item related to the product
+        try:
+            cart_item = CartItem.objects.get(cart=cart, product=product)
+            cart_item.delete()  # Remove the item from the cart
+            return JsonResponse({'status': 'success'})
+        except CartItem.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Item not found in cart'}, status=404)
+    
+    return JsonResponse({'status': 'error'}, status=400)
+@csrf_exempt
+def update_cart(request):
+    if request.method == 'POST':
+        product_id = int(request.POST.get('product_id'))
+        action = request.POST.get('action')
+
+        # Get the user's cart
+        cart = get_object_or_404(Cart, user=request.user)
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Get the cart item or create a new one if it doesn't exist
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+        
+        if action == 'increase':
+            cart_item.increase_quantity()
+        elif action == 'decrease':
+            cart_item.decrease_quantity()
+        
+        # Optionally, check if the item quantity is 0 after decrease and remove it if necessary
+        if cart_item.quantity <= 0:
+            cart_item.delete()
+        
+        return JsonResponse({'status': 'success'})
+    
+    return JsonResponse({'status': 'error'}, status=400)
+
+# Optional view to get the CSRF token (used in JavaScript)
+def csrf_token(request):
+    return JsonResponse({'csrfToken': get_token(request)})
+    
 # Profile View
 @login_required
 @csrf_protect
 def profile(request):
-=======
-        total = cart.get_total()
-
-        return JsonResponse({'cart_items': items, 'total': total})
-    except Cart.DoesNotExist:
-        return JsonResponse({'cart_items': [], 'total': 0})
-
-# Profile View
-
-@login_required
-@csrf_protect
-def profile(request):
-    # Ensure the user has a profile before proceeding
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
     if not hasattr(request.user, 'profile'):
         Profile.objects.create(user=request.user)
 
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-<<<<<<< HEAD
-
-=======
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
@@ -297,55 +129,23 @@ def profile(request):
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=request.user.profile)
 
-<<<<<<< HEAD
     return render(request, 'users/profile.html', {'user_form': user_form, 'profile_form': profile_form})
 
 # Signup View
-=======
-    context = {
-        'user_form': user_form,
-        'profile_form': profile_form
-    }
-    return render(request, 'users/profile.html', context)
-
-@csrf_protect
-def some_view(request):
-    if request.user.is_authenticated:
-        return redirect('checkout')
-    else:
-        request.session['next_page'] = request.path
-        return redirect('login')
-
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
-@csrf_protect
+# @csrf_protect
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-<<<<<<< HEAD
             login(request, user)
-            next_page = request.session.get('next_page', 'checkout')
+            next_page = request.session.get('next_page', 'index')
             return redirect(next_page)
-=======
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                next_page = request.session.get('next_page', 'checkout')
-                return redirect(next_page)
-            else:
-                form.add_error(None, "Authentication failed.")
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
     else:
         form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
-<<<<<<< HEAD
 # Login View
-=======
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
 @csrf_protect
 def login_view(request):
     if request.method == 'POST':
@@ -356,7 +156,6 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-<<<<<<< HEAD
 
                 # Check if the user is a superuser
                 if user.is_superuser:
@@ -364,10 +163,6 @@ def login_view(request):
 
                 next_page = request.session.get('next_page', 'index')
                 request.session.pop('next_page', None)
-=======
-                next_page = request.session.get('next_page', 'home')  # Default to 'home' if not set
-                request.session.pop('next_page', None)  # Clear session key after use
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
                 return redirect(next_page)
     else:
         form = CustomLoginForm()
@@ -379,7 +174,6 @@ def some_view(request):
     # Filter to exclude admin (superusers) from profiles
     profiles = Profile.objects.filter(user__is_superuser=False)
 
-<<<<<<< HEAD
     if request.user.is_authenticated:
         return redirect('checkout')
     else:
@@ -392,11 +186,6 @@ def some_view(request):
 # Shipping Fee Calculation Function
 def calculate_shipping_fee(order):
     total_price = order.calculate_total_price()  # Returns the total price of the order
-=======
-# shipping fee calculation function 
-def calculate_shipping_fee(order):
-    total_price = order.calculate_total_price()  # returns the total price of the order
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
     if total_price < 50:
         return 10  # Flat fee for orders below $50
     elif total_price < 100:
@@ -404,11 +193,7 @@ def calculate_shipping_fee(order):
     else:
         return 0   # Free shipping for orders $100 and above
 
-<<<<<<< HEAD
 # Check if User is Logged In
-=======
-# Return whether the user is logged in or not
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
 def is_logged_in(request):
     return JsonResponse({'is_authenticated': request.user.is_authenticated})
 
@@ -426,46 +211,27 @@ def checkout_view(request):
         if form.is_valid():
             # Create order
             order = Order.objects.create(user=request.user)
-<<<<<<< HEAD
-
-=======
-            
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
             # Calculate and set the shipping fee
             order.shipping_fee = calculate_shipping_fee(order)
             order.total_price = order.calculate_total_price() + order.shipping_fee  # Include shipping fee in total price
             order.save()
-<<<<<<< HEAD
 
             # Create order items
             for item in cart_items:
                 OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
 
-=======
-            
-            # Create order items
-            for item in cart_items:
-                OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
-            
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
             # Save shipping details
             shipping_details = form.save(commit=False)
             shipping_details.order = order
             shipping_details.save()
-<<<<<<< HEAD
-
-=======
-            
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
             # Handle payment method (no real payment processing here)
-            Payment.objects.create(
-                order=order,
-                payment_method=payment_method,
-                amount=order.total_price,
-                transaction_id="N/A",  # Placeholder, not real transaction ID
-                payment_status="pending"  # You can set this as 'pending' or other status
-            )
-<<<<<<< HEAD
+            # Payment.objects.create(
+                # order=order,
+                # payment_method=payment_method,
+                # amount=order.total_price,
+                # transaction_id="N/A",  # Placeholder, not real transaction ID
+                # payment_status="pending"  # You can set this as 'pending' or other status
+            # )
 
             # Clear cart
             cart_items.delete()
@@ -474,16 +240,6 @@ def checkout_view(request):
     else:
         form = CheckoutForm()
 
-=======
-            
-            # Clear cart
-            cart_items.delete()
-            
-            return redirect('order_confirmation', order_id=order.id)
-    else:
-        form = CheckoutForm()
-    
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
     context = {
         'form': form,
         'cart_items': cart_items,
@@ -491,21 +247,6 @@ def checkout_view(request):
         'total_price': cart.get_total(),
     }
     return render(request, 'checkout.html', context)
-<<<<<<< HEAD
-=======
-
-
-    
-# logout view
-@csrf_protect
-def logout_view(request):
-    logger.debug(f"Request method: {request.method}")
-    if request.method == 'POST':
-        logout(request)
-        return redirect('login')
-    else:
-        return HttpResponseForbidden("Only POST requests are allowed.")
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
 
 # Logout View
 @csrf_protect
@@ -522,7 +263,6 @@ def logout_view(request):
 @csrf_protect
 def place_order(request):
     if request.method == 'POST':
-<<<<<<< HEAD
         cart = Cart.objects.get(user=request.user)
         cart_items = CartItem.objects.filter(cart=cart)
 
@@ -552,54 +292,6 @@ def place_order(request):
         return HttpResponseBadRequest("Invalid request method.")
 
 # Order Confirmation View
-=======
-        form = CheckoutForm(request.POST)
-        
-        if form.is_valid():
-            address = form.cleaned_data['address']
-            city = form.cleaned_data['city']
-            postal_code = form.cleaned_data['postal_code']
-            
-            # Assume cart data is stored in session
-            cart = request.session.get('cart', {})
-            
-            if not cart or not cart.get('items'):
-                return redirect('checkout')  # Redirect to checkout if the cart is empty
-            
-            # Calculate total price
-            total = sum(item['price'] * item['quantity'] for item in cart['items'])
-            
-            # Create an order
-            order = Order.objects.create(
-                user=request.user,
-                total=total,
-                address=address,
-                city=city,
-                postal_code=postal_code
-            )
-            
-            # Create order items
-            for item in cart['items']:
-                product = get_object_or_404(Product, id=item['product_id'])
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    quantity=item['quantity'],
-                    price=item['price']  # Ensure price is included if necessary
-                )
-            
-            # Clear the cart
-            request.session['cart'] = {}
-            
-            return redirect('order_confirmation')  # Redirect to order confirmation page
-        else:
-            # Handle form errors
-            return render(request, 'checkout.html', {'form': form})
-    
-    # If the request method is not POST, redirect to checkout page
-    return redirect('checkout')
-# Create an order confirmation page that the user is redirected to after a successful checkout
->>>>>>> 78f4d44396c0843fd4210fce5a99e9df41c2f089
 @login_required
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)

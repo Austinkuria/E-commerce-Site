@@ -1,0 +1,2 @@
+[build]
+command = "python manage.py collectstaic --noinput" publish = "/ecommerce/static/"

@@ -77,9 +77,9 @@ WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'timeout': 50,  # Timeout in seconds
+          'ENGINE': 'django.db.backends.sqlite3',
+          'NAME': BASE_DIR / 'db.sqlite3',
+          'timeout': 50,  # Timeout in seconds
     }
 }
 
@@ -154,5 +154,9 @@ LOGGING = {
         },
     },
 }
+INSTALLED_APPS += ('dbbackup',)
 
-MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_STORAGE_OPTIONS = {'location': os.path.join(BASE_DIR, 'backups/')}
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'     
