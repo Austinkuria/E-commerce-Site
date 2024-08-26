@@ -1,308 +1,306 @@
 /* General body styles */
 body {
-    background-color: #f8f9fa; /* Light gray background */
-    color: #343a40; /* Dark gray text color */
+    background-color: #f8f9fa; /* Light gray background for a clean and neutral look */
+    color: #343a40; /* Dark gray text color for good readability */
 }
 
-/* Navbar Styles */
+/* Navbar Styles: The navigation bar at the top of the page */
 .navbar {
-    background-color: #e03b00; /* Dark orange-red */
-    position: fixed; /* Fixes the navbar at the top */
-    top: 0;
-    width: 100%; /* Full width */
-    z-index: 1030; /* Keeps navbar on top of other elements */
+    background-color: #e03b00; /* Dark orange-red background for a bold appearance */
+    position: fixed; /* Keeps the navbar fixed at the top of the viewport */
+    top: 0; /* Positions the navbar at the very top */
+    width: 100%; /* Makes the navbar span the entire width of the viewport */
+    z-index: 1030; /* Ensures the navbar stays on top of other page elements */
 }
 
 .navbar-brand {
-    color: #ffffff !important; /* White color for brand text */
-    font-weight: 600; /* Bold font */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Text shadow for readability */
-    font-size: 1.4rem; /* Larger font size */
+    color: #ffffff !important; /* White color for brand text to contrast with the dark background */
+    font-weight: 600; /* Bold font weight for prominence */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle shadow to enhance text visibility */
+    font-size: 1.4rem; /* Larger font size for better visibility */
 }
 
 .navbar .nav-link {
-    color: #ffffff !important; /* White color for links */
-    font-weight: 600; /* Bold font */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Text shadow for readability */
-    font-size: 1.2rem; /* Larger font size */
+    color: #ffffff !important; /* White color for navigation links */
+    font-weight: 600; /* Bold font weight for emphasis */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle shadow for better readability */
+    font-size: 1.2rem; /* Slightly larger font size for readability */
 }
 
 .navbar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white color on hover */
-    color: #ffc107 !important; /* Yellow color on hover */
-    border-radius: 5px; /* Rounded corners on hover */
+    background-color: rgba(255, 255, 255, 0.2); /* Light, semi-transparent background on hover */
+    color: #ffc107 !important; /* Yellow color on hover for a visual highlight */
+    border-radius: 5px; /* Rounded corners on hover for a soft effect */
 }
 
 /* Button styles */
 .btn-primary {
-    background-color: #FF4500 !important; /* Dark orange-red background */
-    border-color: #FF4500 !important; /* Dark orange-red border */
+    background-color: #FF4500 !important; /* Dark orange-red background for primary buttons */
+    border-color: #FF4500 !important; /* Matching border color for primary buttons */
 }
 
 .btn-primary:hover {
-    background-color: #e03b00 !important; /* Darker shade on hover */
-    border-color: #e03b00 !important; /* Darker shade border on hover */
+    background-color: #e03b00 !important; /* Darker shade of orange-red on hover for a visual effect */
+    border-color: #e03b00 !important; /* Darker border color on hover */
 }
 
 .btn-secondary {
-    background-color: #343a40 !important; /* Dark gray background */
-    color: #e2e6e9 !important; /* Light gray text color */
+    background-color: #343a40 !important; /* Dark gray background for secondary buttons */
+    color: #e2e6e9 !important; /* Light gray text color for secondary buttons */
 }
 
 .btn-secondary:hover {
-    background-color: #555 !important; /* Darker shade on hover */
-    color: #e2e6e9 !important; /* Light gray text color */
+    background-color: #555 !important; /* Darker gray background on hover */
+    color: #e2e6e9 !important; /* Keeps light gray text color on hover */
 }
 
-/* Home section styles */
+/* Home section styles: The main section with a background image */
 .home-section {
-    position: relative; /* Relative positioning for absolute overlay */
-    width: 100%; /* Full width */
-    height: calc(100vh - 56px); /* Full height minus navbar height */
-    overflow: hidden; /* Hide overflow content */
-    background: url('../images/Home section image.jpg') no-repeat center center; /* Background image */
-    background-size: cover; /* Cover the container */
-    margin-top: 56px; /* Prevent overlap with navbar */
+    position: relative; /* Allows for absolute positioning of child elements like overlay */
+    width: 100%; /* Full width of the viewport */
+    height: calc(100vh - 56px); /* Full height minus the navbar height */
+    overflow: hidden; /* Hides any content that overflows the container */
+    background: url('../images/Home section image.jpg') no-repeat center center; /* Background image centered and not repeated */
+    background-size: cover; /* Ensures the background image covers the entire container */
+    margin-top: 56px; /* Prevents overlap with the fixed navbar */
 }
 
 .overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Center the overlay */
-    text-align: center; /* Center text */
-    color: white; /* White text color */
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    padding: 4rem; /* Padding for larger overlay */
-    border-radius: 10px; /* Rounded corners */
-    width: 80%; /* Overlay width */
-    max-width: 1000px; /* Max width of overlay */
+    position: absolute; /* Positioned absolutely within the home section */
+    top: 50%; /* Centered vertically */
+    left: 50%; /* Centered horizontally */
+    transform: translate(-50%, -50%); /* Centers the overlay precisely */
+    text-align: center; /* Centers text within the overlay */
+    color: white; /* White text color for contrast against the dark background */
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background for readability */
+    padding: 4rem; /* Padding for a spacious overlay */
+    border-radius: 10px; /* Rounded corners for a softer appearance */
+    width: 80%; /* Width of the overlay relative to its container */
+    max-width: 1000px; /* Maximum width of the overlay */
 }
 
 .overlay h1 {
-    font-size: 3rem; /* Larger font size */
+    font-size: 3rem; /* Large font size for the main heading */
     margin-bottom: 1rem; /* Space below the heading */
 }
 
 .overlay p {
-    font-size: 1.5rem; /* Larger font size */
+    font-size: 1.5rem; /* Larger font size for paragraph text */
     margin-bottom: 2rem; /* Space below the paragraph */
 }
 
 .btn-call-to-action {
-    display: inline-block; /* Inline-block display */
-    padding: 12px 24px; /* Padding */
-    background-color: #FF4500; /* Call-to-action button color */
-    color: white; /* White text color */
-    text-decoration: none; /* No underline */
-    font-size: 1.5rem; /* Larger font size */
-    border-radius: 5px; /* Rounded corners */
-    transition: background-color 0.3s ease; /* Smooth transition on hover */
+    display: inline-block; /* Inline-block display for proper spacing */
+    padding: 12px 24px; /* Padding for a comfortable clickable area */
+    background-color: #FF4500; /* Dark orange-red color for call-to-action buttons */
+    color: white; /* White text color for contrast */
+    text-decoration: none; /* Removes underline from links */
+    font-size: 1.5rem; /* Larger font size for visibility */
+    border-radius: 5px; /* Rounded corners for a softer look */
+    transition: background-color 0.3s ease; /* Smooth transition effect on hover */
 }
 
 .btn-call-to-action:hover {
-    background-color: #e03b00; /* Darker shade on hover */
+    background-color: #e03b00; /* Darker shade on hover for a visual effect */
 }
 
-/* Responsive styles for Home Section */
+/* Responsive styles for Home Section: Adjustments for different screen sizes */
 @media (max-width: 768px) {
     .home-section {
-        height: calc(70vh - 56px); /* Height for smaller screens */
+        height: calc(70vh - 56px); /* Reduced height for smaller screens */
     }
     .overlay {
-        padding: 2rem; /* Padding for smaller screens */
-        width: 90%; /* Width for smaller screens */
+        padding: 2rem; /* Reduced padding for smaller screens */
+        width: 90%; /* Increased width for smaller screens */
     }
 
     .overlay h1 {
-        font-size: 2rem; /* Font size for smaller screens */
+        font-size: 2rem; /* Smaller font size for the heading on smaller screens */
     }
 
     .overlay p {
-        font-size: 1.2rem; /* Font size for smaller screens */
+        font-size: 1.2rem; /* Smaller font size for the paragraph on smaller screens */
     }
 
     .btn-call-to-action {
-        font-size: 1.2rem; /* Font size for smaller screens */
-        padding: 10px 20px; /* Padding for smaller screens */
+        font-size: 1.2rem; /* Smaller font size for the button on smaller screens */
+        padding: 10px 20px; /* Reduced padding for smaller screens */
     }
 
     .navbar .nav-link {
-        font-size: 1rem; /* Navbar link font size for smaller screens */
+        font-size: 1rem; /* Smaller font size for navbar links on smaller screens */
     }
 }
 
 @media (max-width: 576px) {
     .home-section {
-        height: calc(60vh - 56px); /* Height for extra small screens */
+        height: calc(60vh - 56px); /* Further reduced height for extra small screens */
     }
     .overlay {
-        padding: 1rem; /* Padding for extra small screens */
-        width: 95%; /* Width for extra small screens */
+        padding: 1rem; /* Further reduced padding for extra small screens */
+        width: 95%; /* Width adjustment for extra small screens */
     }
 
     .overlay h1 {
-        font-size: 1.5rem; /* Font size for extra small screens */
+        font-size: 1.5rem; /* Smaller font size for the heading on extra small screens */
     }
 
     .overlay p {
-        font-size: 1rem; /* Font size for extra small screens */
+        font-size: 1rem; /* Smaller font size for the paragraph on extra small screens */
     }
 
     .btn-call-to-action {
-        font-size: 1rem; /* Font size for extra small screens */
-        padding: 8px 16px; /* Padding for extra small screens */
+        font-size: 1rem; /* Smaller font size for the button on extra small screens */
+        padding: 8px 16px; /* Further reduced padding for extra small screens */
     }
 
     .navbar .nav-link {
-        font-size: 0.9rem; /* Navbar link font size for extra small screens */
+        font-size: 0.9rem; /* Smaller font size for navbar links on extra small screens */
     }
 }
 
-/* Products section styles */
+/* Products section styles: Styles for the product cards */
 .products-section .card-title {
-    font-size: 1.2rem; /* Card title font size */
-    font-weight: bold; /* Bold card title */
-    color: #FF4500; /* Card title color */
+    font-size: 1.2rem; /* Font size for card titles */
+    font-weight: bold; /* Bold text for emphasis */
+    color: #FF4500; /* Dark orange-red color for card titles */
 }
 
 .products-section h2 {
-    color: #FF4500; /* Section heading color */
-    font-size: 2rem; /* Section heading font size */
-    font-weight: 600; /* Section heading font weight */
-    margin-bottom: 2rem; /* Space below the heading */
-    text-align: center; /* Center the heading */
+    color: #FF4500; /* Dark orange-red color for section headings */
+    font-size: 2rem; /* Larger font size for section headings */
+    font-weight: 600; /* Bold font weight for section headings */
+    margin-bottom: 2rem; /* Space below the section heading */
+    text-align: center; /* Center-aligns the section heading */
 }
 
 .products-section .card-text {
-    font-size: 1rem; /* Card text font size */
-    color: #555; /* Card text color */
-    margin-top: auto; /* Space above the card text */
+    font-size: 1rem; /* Font size for card text */
+    color: #555; /* Dark gray color for card text */
+    margin-top: auto; /* Pushes the text to the bottom of the card */
 }
 
 .card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition effects for scaling and shadow */
 }
 
 .card:hover {
-    transform: scale(1.05); /* Slight scaling on hover */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
+    transform: scale(1.05); /* Slightly enlarges the card on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Adds a shadow effect on hover */
 }
 
 @media (max-width: 767.98px) {
     .card:hover {
-        transform: scale(1.01); /* Less scaling on smaller screens */
+        transform: scale(1.01); /* Less scaling effect on smaller screens */
     }
 }
 
-/* Snackbar Styling */
+/* Snackbar Styling: For temporary notifications */
 #snackbar {
-    visibility: hidden;
-    min-width: 250px;
-    background-color: #FF4500;
-    color:white !important;
-    text-align: center;
-    border-radius: 2px;
-    padding: 16px;
-    position: fixed;
-    z-index: 1;
-    left: 50%;
-    bottom: 30px;
-    font-size: 17px;
-    transform: translateX(-50%);
+    visibility: hidden; /* Hides the snackbar by default */
+    min-width: 250px; /* Minimum width for the snackbar */
+    background-color: #FF4500; /* Dark orange-red background for the snackbar */
+    color: white !important; /* White text color for contrast */
+    text-align: center; /* Center-aligns text */
+    border-radius: 2px; /* Slightly rounded corners */
+    padding: 16px; /* Padding for a comfortable area */
+    position: fixed; /* Keeps snackbar fixed on the viewport */
+    z-index: 1; /* Ensures snackbar appears above other content */
+    left: 50%; /* Centers snackbar horizontally */
+    bottom: 30px; /* Positions snackbar slightly above the bottom of the viewport */
+    font-size: 17px; /* Font size for snackbar text */
+    transform: translateX(-50%); /* Centers snackbar horizontally */
 }
 
 #snackbar.show {
-    visibility: visible;
-    animation: fadein 0.5s, fadeout 0.5s 0.3s;
+    visibility: visible; /* Shows the snackbar */
+    animation: fadein 0.5s, fadeout 0.5s 0.3s; /* Animates the snackbar appearance and disappearance */
 }
 
 @keyframes fadein {
-    from { bottom: 0; opacity: 0; } 
-    to { bottom: 30px; opacity: 1; }
+    from { bottom: 0; opacity: 0; } /* Fades in from the bottom */
+    to { bottom: 30px; opacity: 1; } /* Fully visible and positioned */
 }
 
 @keyframes fadeout {
-    from { bottom: 30px; opacity: 1; }
-    to { bottom: 0; opacity: 0; }
+    from { bottom: 30px; opacity: 1; } /* Fades out from the visible state */
+    to { bottom: 0; opacity: 0; } /* Completely invisible and positioned */
 }
 
-/* Footer Styles */
+/* Footer Styles: Styles for the footer area */
 .footer {
-    background-color: #e03b00; /* Footer background color */
+    background-color: #e03b00; /* Dark orange-red background for the footer */
 }
 
 .footer a, .footer p {
-    color: #ffffff; /* Footer text and links color */
-    font-weight: 600; /* Bold font */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Text shadow for readability */
+    color: #ffffff; /* White text color for links and paragraphs in the footer */
+    font-weight: 600; /* Bold text for emphasis */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle shadow for readability */
 }
 
 .footer a:hover {
-    background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white color on hover */
+    background-color: rgba(255, 255, 255, 0.2); /* Light, semi-transparent background on hover */
     color: #ffc107; /* Yellow color on hover */
-    border-radius: 5px; /* Rounded corners on hover */
+    border-radius: 5px; /* Rounded corners for a softer effect */
 }
 
-/* Cart modal styles */
+/* Cart modal styles: Styles for the modal dialog */
 .modal-content {
-    background-color: #f8f9fa; /* Modal background color */
-    color: #343a40; /* Modal text color */
+    background-color: #f8f9fa; /* Light gray background for the modal */
+    color: #343a40; /* Dark gray text color for contrast */
 }
 
 .modal-header, .modal-footer {
-    border: none; /* No border for header and footer */
+    border: none; /* No border for the modal header and footer */
 }
 
 .modal-body h5 {
-    color: #FF4500; /* Modal body heading color */
+    color: #FF4500; /* Dark orange-red color for modal body headings */
 }
 
-
-
-/* Login and Signup Form Styles */
+/* Login and Signup Form Styles: Styles for the authentication forms */
 .signup-form, .login-form {
-    background-color: #ffffff; /* Form background color */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(26, 21, 21, 0.1); /* Shadow effect */
-    padding: 2rem; /* Padding */
-    margin-bottom: 10px;
+    background-color: #ffffff; /* White background for the forms */
+    border-radius: 8px; /* Rounded corners for a softer look */
+    box-shadow: 0 4px 8px rgba(26, 21, 21, 0.1); /* Shadow effect for depth */
+    padding: 2rem; /* Generous padding for comfortable form spacing */
+    margin-bottom: 10px; /* Space below the forms */
 }
 
 .signup-form h2, .login-form h2 {
-    color: #FF4500; /* Heading color */
-    font-size: 1.8rem; /* Heading font size */
-    font-weight: 600; /* Bold heading */
+    color: #FF4500; /* Dark orange-red color for form headings */
+    font-size: 1.8rem; /* Larger font size for form headings */
+    font-weight: 600; /* Bold font weight for emphasis */
 }
 
 .form-control {
-    border-radius: 4px; /* Rounded corners */
-    border-color: #ddd; /* Border color */
-    margin-bottom: 10px;
+    border-radius: 4px; /* Slightly rounded corners for form controls */
+    border-color: #ddd; /* Light gray border color */
+    margin-bottom: 10px; /* Space below form controls */
 }
 
 .invalid-feedback {
-    color: red;
-    font-size: 0.875em;
+    color: red; /* Red color for error messages */
+    font-size: 0.875em; /* Slightly smaller font size for feedback */
 }
 
-/* Responsive styles for Forms */
+/* Responsive styles for Forms: Adjustments for smaller screens */
 @media (max-width: 767.98px) {
     .signup-form, .login-form {
-        padding: 1rem; /* Padding for smaller screens */
+        padding: 1rem; /* Reduced padding for smaller screens */
     }
 
     .form-control {
-        font-size: 0.9rem; /* Font size for form controls on smaller screens */
+        font-size: 0.9rem; /* Smaller font size for form controls on smaller screens */
     }
 }
 
 @media (max-width: 575.98px) {
     .signup-form, .login-form {
-        padding: 0.5rem; /* Padding for extra small screens */
+        padding: 0.5rem; /* Further reduced padding for extra small screens */
     }
 
     .form-control {
-        font-size: 0.8rem; /* Font size for form controls on extra small screens */
+        font-size: 0.8rem; /* Smaller font size for form controls on extra small screens */
     }
 }

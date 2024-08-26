@@ -1,13 +1,13 @@
 from django.urls import path
-from . import views 
-
+from . import views
+from .views import CustomLogoutView
 urlpatterns = [
     path('', views.products_view, name='index'),
     path('index/', views.products_view, name='index'),
     path('profile/', views.profile, name='profile'),
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
-    path('logout/', views.logout_view, name='logout'),
+    path('logout/', CustomLogoutView.as_view(next_page='login'), name='logout'),
     path('some-page/', views.some_view, name='some_view'),
     path('add_to_cart/', views.add_to_cart, name='add_to_cart'),
     path('remove_from_cart/', views.remove_from_cart, name='remove_from_cart'),

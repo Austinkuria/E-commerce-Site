@@ -49,7 +49,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
 
@@ -94,6 +93,8 @@ DATABASES = {
     }
 }
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Ensure session is using the database
+SESSION_COOKIE_NAME = 'sessionid'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -143,31 +144,24 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Redirect after successful login
 LOGIN_REDIRECT_URL = 'index'
 
-LOGOUT_REDIRECT_URL = '/'
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
-
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'level': 'DEBUG',
         },
     },
     'loggers': {
-        'django.db.backends': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'myapp': { 
             'handlers': ['console'],
             'level': 'DEBUG',
         },
     },
 }
-# INSTALLED_APPS += ('dbbackup',)
-
-# DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
-# DBBACKUP_STORAGE_OPTIONS = {'location': os.path.join(BASE_DIR, 'backups/')}
-
-MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'     

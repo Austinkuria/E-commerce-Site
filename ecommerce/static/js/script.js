@@ -1,20 +1,28 @@
 $(document).ready(function() {
-    let csrfToken = getCsrfToken(); // Get the CSRF token once when the document is ready
+    // Retrieve the CSRF token
+    let csrfToken = getCsrfToken();
 
-    // Cache jQuery selectors
+    // Cache jQuery selectors for performance
     var $cartList = $('#cart-list');
     var $cartCount = $('#cart-count');
     var $cartSubtotal = $('#cart-subtotal');
     var $productModal = $('#productModal');
     var $checkoutButton = $('#checkout-button');
     var $orderNowButton = $('#order-now-button');
-    
-    // Function to get CSRF token
+
+    // Set up global AJAX settings
+    $.ajaxSetup({
+        headers: {
+            'X-CSRFToken': getCsrfToken()
+        }
+    });
+
+    // Function to get CSRF token from meta tag
     function getCsrfToken() {
         return $('meta[name="csrf-token"]').attr('content');
     }
 
-    // Function to update the cart display
+    // Update the cart display
     function updateCart() {
         $.ajax({
             url: '/get_cart/',
@@ -52,20 +60,19 @@ $(document).ready(function() {
         });
     }
 
-    // Event listener for opening product details modal and setting data
+    // Populate and display product details in the modal
     $productModal.on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget); // Button that triggered the modal
-        var productId = button.data('id'); // Extract info from data-* attributes
+        var productId = button.data('id'); // Get product ID from button data
         var modal = $(this);
-    
-        // Populate modal with product details
+
         modal.find('#modalProductName').text(button.data('name'));
         modal.find('#modalProductPrice').text('Ksh ' + button.data('price'));
         modal.find('#modalProductDescription').text(button.data('description'));
         modal.find('#modalProductImage').attr('src', button.data('image'));
         modal.find('#modalProductReviews').text(button.data('reviews'));
-    
-        // Set up star rating display
+
+        // Create star rating display
         var rating = button.data('rating');
         var stars = '';
         for (var i = 0; i < 5; i++) {
@@ -78,17 +85,16 @@ $(document).ready(function() {
             }
         }
         modal.find('#modalProductRating').html(stars);
-    
-        // Set data-id for "Add to Cart" button
+
         modal.find('#modal-add-to-cart').data('id', productId);
     });
 
-    // Add to Cart button in the product details modal
+    // Handle adding a product to the cart
     $('#modal-add-to-cart').on('click', function() {
         var productId = $(this).data('id');
         var quantity = $('#modalProductQuantity').val();
         var productName = $('#modalProductName').text();
-    
+        var productPrice = parseFloat($('#modalProductPrice').text().replace('Ksh ', ''));
         function showSnackbar(message) {
             var snackbar = $('#snackbar');
             snackbar.text(message);
@@ -97,20 +103,21 @@ $(document).ready(function() {
                 snackbar.removeClass('show');
             }, 3000);
         }
-    
-        if (confirm(`Do you want to add ${quantity} x "${productName}" to your cart?`)) {
+
+        if (confirm(`Add ${quantity} x "${productName}" to your cart?`)) {
             $.ajax({
                 url: '/add_to_cart/',
                 type: 'POST',
                 data: {
                     product_id: productId,
                     quantity: quantity,
+                    price: productPrice,
                     csrfmiddlewaretoken: csrfToken
                 },
                 success: function(response) {
-                    showSnackbar("Product added to cart successfully!");
-                    $('#productModal').modal('hide'); // Ensure this is correctly referenced
-                    updateCart(); // Update the cart display
+                    showSnackbar("Product added to cart!");
+                    $('#productModal').modal('hide'); // Close the modal
+                    updateCart(); // Refresh the cart display
                 },
                 error: function(xhr, status, error) {
                     console.error("Error adding to cart: " + error);
@@ -118,8 +125,8 @@ $(document).ready(function() {
             });
         }
     });
-    
-    // Event listeners for cart operations
+
+    // Remove an item from the cart
     $(document).on('click', '.remove-from-cart', function() {
         let productId = $(this).data('id');
         $.ajax({
@@ -131,7 +138,7 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    updateCart();
+                    updateCart(); // Refresh the cart display
                 } else {
                     alert('Failed to remove item from cart');
                 }
@@ -142,6 +149,7 @@ $(document).ready(function() {
         });
     });
 
+    // Update quantity of an item in the cart
     $(document).on('click', '.increase-quantity, .decrease-quantity', function() {
         let productId = $(this).data('id');
         let action = $(this).hasClass('increase-quantity') ? 'increase' : 'decrease';
@@ -155,7 +163,7 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.status === 'success') {
-                    updateCart();
+                    updateCart(); // Refresh the cart display
                 } else {
                     alert('Failed to update item quantity');
                 }
@@ -166,7 +174,4 @@ $(document).ready(function() {
         });
     });
 
-    // Initial cart update
-    updateCart();
 });
-
