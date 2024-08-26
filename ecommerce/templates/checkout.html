@@ -15,7 +15,7 @@
         <h2>Checkout</h2>
                 <div class="col-md-6">
                     
-                    <form method="POST" action="{% url 'order_confirmation' %}">
+                    <form method="POST" action="{% url 'checkout' %}">
                         {% csrf_token %}
                         {{ form.as_p }}
                     
@@ -25,19 +25,22 @@
                                 <li>{{ item.quantity }} x {{ item.product.name }}: ${{ item.get_total_price }}</li>
                             {% endfor %}
                         </ul>
-                        <p>Shipping Fee: Ksh {{ order.shipping_fee }}</p>
-                        <p>Total: Ksh {{ order.total_price }}</p>
+                        <p>Shipping Fee: Ksh {{ shipping_fee }}</p>
+                        <p>Total: Ksh {{ total_price }}</p>
+                        
                         <fieldset>
-                            <legend>Payment Method</legend>
+                            <legend>Select Payment Method</legend>
                             <label>
-                                <input type="radio" name="payment_method" value="mpesa" checked>
-                                M-Pesa
+                                <input type="radio" name="payment_method" value="visa" required> Visa
                             </label>
                             <label>
-                                <input type="radio" name="payment_method" value="visa">
-                                Visa
+                                <input type="radio" name="payment_method" value="mastercard" required> MasterCard
+                            </label>
+                            <label>
+                                <input type="radio" name="payment_method" value="mpesa" required> M-Pesa
                             </label>
                         </fieldset>
+
                         <button type="submit" class="btn btn-primary mt-3">Place Order</button>
                     </form>
                 </div>

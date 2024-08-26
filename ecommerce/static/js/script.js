@@ -169,3 +169,25 @@ $(document).ready(function() {
     // Initial cart update
     updateCart();
 });
+
+$(document).ready(function() {
+    $('#logoutForm').on('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: $(this).serialize(), // Serialize form data
+            success: function(response) {
+                console.log('Logout successful:', response);
+                window.location.href = "{% url 'index' %}"; // Redirect on success
+            },
+            error: function(xhr, errmsg, err) {
+                console.error('Logout failed:', errmsg);
+                console.log('XHR:', xhr);
+                console.log('Error:', err);
+            }
+        });
+    });
+});
+

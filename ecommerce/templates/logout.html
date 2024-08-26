@@ -15,17 +15,12 @@
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6 login-form">
                 <h2 class="text-center mb-4">Logout</h2>
-                {% if user.is_authenticated %}
-                <form method="POST" action="{% url 'logout' %}">
+                <form id="logoutForm" method="POST" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <p>Are you sure you want to log out?</p>
                     <button type="submit" class="btn btn-primary">Logout</button>
                 </form>
-                {% else %}
-                <form method="POST" action="{% url 'registration/login' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Login</button>
-                    {% endif %}
+                
             </div>
         </div>
     </div>

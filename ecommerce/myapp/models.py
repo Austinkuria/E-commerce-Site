@@ -5,14 +5,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 # Product Model
-
 class Product(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='products_images/', blank=True)
-    description = models.TextField(blank=True, null=True)  # Optional: Provide a description
-    rating = models.PositiveIntegerField(default=0)  # Optional: Product rating (e.g., 1-5)
-    reviews = models.PositiveIntegerField(default=0)  # Optional: Number of reviews
+    description = models.TextField(blank=True, null=True) 
+    rating = models.PositiveIntegerField(default=0)  
+    reviews = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -20,6 +19,7 @@ class Product(models.Model):
     def get_total_price(self, quantity):
         return self.price * quantity
 
+# Cart Model
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -33,8 +33,9 @@ class Cart(models.Model):
     def get_total_price(self):
         return sum(item.get_total_price() for item in self.get_items())
 
+# CartItem model
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE) #
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
@@ -79,6 +80,23 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
+    
+class Payment(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('visa', 'Visa'),
+        ('mastercard', 'MasterCard'),
+        ('mpesa', 'M-Pesa'),
+    ]
+
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    transaction_id = models.CharField(max_length=255, blank=True, null=True)  # Placeholder for real transaction ID
+    payment_status = models.CharField(max_length=20, default='pending')  # You can add more statuses
+
+    def __str__(self):
+        return f"Payment for Order {self.order.id} via {self.get_payment_method_display()}"
+    
 class ShippingDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
@@ -86,8 +104,12 @@ class ShippingDetails(models.Model):
     address = models.CharField(max_length=255)
     postal_code = models.CharField(max_length=20)
 
+
+
     def __str__(self):
         return f"{self.user.username}'s Shipping Details"
+
+
 
 # Profile Model
 class Profile(models.Model):
