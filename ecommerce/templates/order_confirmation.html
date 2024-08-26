@@ -22,8 +22,8 @@
                 <li>{{ item.quantity }} x {{ item.product.name }}: Ksh {{ item.price }}</li>
             {% endfor %}
         </ul>
-        <p>Total Price: Ksh {{ order.total_price }}</p>
-        <p>Shipping Fee: Ksh {{ order.shipping_fee }}</p>
+        <p>Total Price: Ksh {{total_price }}</p>
+        <p>Shipping Fee: Ksh {{ shipping_fee }}</p>
         <!-- You can add more details about the order and payment here -->
         <p>We will send you an email with the order details.</p>
         <p>For any inquiries, please contact our customer service.</p>

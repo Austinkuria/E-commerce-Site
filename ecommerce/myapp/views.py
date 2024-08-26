@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.urls import reverse  # To get the URL for admin:index
 from django.views.decorators.http import require_POST
-from .models import Product, Cart, CartItem, Order, OrderItem, Profile, Payment
+from .models import Product, Cart, CartItem, Order, OrderItem, Profile, Payment, ShippingDetails
 from .forms import CustomUserCreationForm, CustomLoginForm, UserUpdateForm, ProfileUpdateForm, CheckoutForm
 import logging
 import json
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def products_view(request):
     products = Product.objects.all()
     return render(request, 'index.html', {'products': products})
-@login_required
+# @login_required
 def get_cart(request):
     # Retrieve the user's cart
     cart = get_object_or_404(Cart, user=request.user)
@@ -213,7 +213,6 @@ def calculate_shipping_fee(total_price):
     else:
         return 150
 
-#CheckOut view
 @login_required
 @csrf_protect
 def checkout_view(request):
@@ -228,32 +227,39 @@ def checkout_view(request):
             total_price = cart.get_total_price()  # Ensure this returns a numeric value
             shipping_fee = calculate_shipping_fee(total_price)
             
+            # Create and save the order
             order = Order.objects.create(
                 user=request.user,
-                total=total_price + shipping_fee,
-                address=form.cleaned_data['address'],
-                city=form.cleaned_data['city'],
-                postal_code=form.cleaned_data['postal_code']
+                total=total_price + shipping_fee
             )
             
             order.shipping_fee = shipping_fee
             order.save()
 
+            # Create order items
             for item in cart_items:
                 OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
 
-            shipping_details = form.save(commit=False)
-            shipping_details.order = order
+            # Create ShippingDetails instance
+            shipping_details = ShippingDetails(
+                user=request.user,  # or set to None if not needed
+                order=order,
+                address=form.cleaned_data['address'],
+                city=form.cleaned_data['city'],
+                postal_code=form.cleaned_data['postal_code']
+            )
             shipping_details.save()
 
+            # Create payment
             Payment.objects.create(
                 order=order,
                 payment_method=payment_method,
-                amount=order.total_price,
+                amount=order.total,
                 transaction_id="N/A",
                 payment_status="pending"
             )
 
+            # Clear cart items
             cart_items.delete()
 
             return redirect('order_confirmation', order_id=order.id)
@@ -269,163 +275,6 @@ def checkout_view(request):
         'cart_items': cart_items,
         'shipping_fee': shipping_fee,
         'total_price': total_price + shipping_fee,
-    }
-    return render(request, 'checkout.html', context)
-
-
-    cart = Cart.objects.get(user=request.user)
-    cart_items = CartItem.objects.filter(cart=cart)
-
-    if request.method == 'POST':
-        form = CheckoutForm(request.POST)
-        payment_method = request.POST.get('payment_method')
-
-        if form.is_valid():
-            total_price = cart.get_total_price()  # Ensure this method returns a numeric value
-            shipping_fee = calculate_shipping_fee(total_price)
-            
-            order = Order.objects.create(user=request.user)
-            order.shipping_fee = shipping_fee
-            order.total_price = total_price + shipping_fee
-            order.save()
-
-            for item in cart_items:
-                OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
-
-            shipping_details = form.save(commit=False)
-            shipping_details.order = order
-            shipping_details.save()
-
-            Payment.objects.create(
-                order=order,
-                payment_method=payment_method,
-                amount=order.total_price,
-                transaction_id="N/A",
-                payment_status="pending"
-            )
-
-            cart_items.delete()
-
-            return redirect('order_confirmation', order_id=order.id)
-    else:
-        form = CheckoutForm()
-
-    total_price = cart.get_total_price()  # Ensure this returns a valid numeric value
-    shipping_fee = calculate_shipping_fee(total_price)
-
-    context = {
-        'form': form,
-        'cart_items': cart_items,
-        'shipping_fee': shipping_fee,
-        'total_price': total_price + shipping_fee,
-    }
-    return render(request, 'checkout.html', context)
-
-    cart = Cart.objects.get(user=request.user)
-    cart_items = CartItem.objects.filter(cart=cart)
-
-    if request.method == 'POST':
-        form = CheckoutForm(request.POST)
-        payment_method = request.POST.get('payment_method')
-
-        if form.is_valid():
-            total_price = cart.get_total_price()
-            shipping_fee = calculate_shipping_fee(total_price)
-            
-            order = Order.objects.create(user=request.user)
-            order.shipping_fee = shipping_fee
-            order.total_price = total_price + shipping_fee
-            order.save()
-
-            for item in cart_items:
-                OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
-
-            shipping_details = form.save(commit=False)
-            shipping_details.order = order
-            shipping_details.save()
-
-            Payment.objects.create(
-                order=order,
-                payment_method=payment_method,
-                amount=order.total_price,
-                transaction_id="N/A",
-                payment_status="pending"
-            )
-
-            cart_items.delete()
-
-            return redirect('order_confirmation', order_id=order.id)
-    else:
-        form = CheckoutForm()
-
-    total_price = cart.get_total_price()
-    shipping_fee = calculate_shipping_fee(total_price)
-
-    context = {
-        'form': form,
-        'cart_items': cart_items,
-        'shipping_fee': shipping_fee,
-        'total_price': total_price + shipping_fee,
-    }
-    return render(request, 'checkout.html', context)
-
-    cart = Cart.objects.get(user=request.user)
-    cart_items = CartItem.objects.filter(cart=cart)
-
-    if request.method == 'POST':
-        form = CheckoutForm(request.POST)
-        payment_method = request.POST.get('payment_method')
-
-        if form.is_valid():
-            order = Order.objects.create(user=request.user)
-            shipping_fee = calculate_shipping_fee(order)
-            order.shipping_fee = shipping_fee
-            total_price = cart.get_total_price() + shipping_fee
-            order.total_price = total_price
-            order.save()
-
-            for item in cart_items:
-                OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
-
-            shipping_details = form.save(commit=False)
-            shipping_details.order = order
-            shipping_details.save()
-
-            Payment.objects.create(
-                order=order,
-                payment_method=payment_method,
-                amount=total_price,
-                transaction_id="N/A",
-                payment_status="pending"
-            )
-
-            cart_items.delete()
-
-            return redirect('order_confirmation', order_id=order.id)
-    else:
-        form = CheckoutForm()
-
-    shipping_fee = calculate_shipping_fee(None)
-    total_price = cart.get_total_price() + shipping_fee
-
-    context = {
-        'form': form,
-        'cart_items': cart_items,
-        'shipping_fee': shipping_fee,
-        'total_price': total_price,
-    }
-    return render(request, 'checkout.html', context)
-
-
-    # Calculate shipping fee and total price for display
-    shipping_fee = calculate_shipping_fee(None)  # Use default or modify as needed
-    total_price = cart.get_total_price() + shipping_fee
-
-    context = {
-        'form': form,
-        'cart_items': cart_items,
-        'shipping_fee': shipping_fee,
-        'total_price': total_price,
     }
     return render(request, 'checkout.html', context)
 # Logout View
@@ -475,10 +324,15 @@ def order_confirmation_view(request, order_id):
     try:
         order = Order.objects.get(id=order_id, user=request.user)
     except Order.DoesNotExist:
-        return redirect('checkout')  # Redirect to checkout if order does not exist
+        return redirect('checkout')
 
+    # Calculate total price using the get_total_price method
+    total_price = sum(item.get_total_price() for item in order.items.all())
+    shipping_fee = calculate_shipping_fee(total_price)
     context = {
         'order': order,
-        'order_items': order.items.all(),  # Assuming you have a related name 'items' on the OrderItem model
+        'order_items': order.items.all(),
+        'total_price': total_price,
+        'shipping_fee': shipping_fee,
     }
     return render(request, 'order_confirmation.html', context)

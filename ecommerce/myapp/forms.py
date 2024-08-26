@@ -98,38 +98,53 @@ class ProfileUpdateForm(forms.ModelForm):
 class CheckoutForm(forms.Form):
     address = forms.CharField(
         max_length=255,
-        validators=[RegexValidator(r'^[a-zA-Z0-9\s,.-]+$', 'Enter a valid address.')],
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., 123 Main St, Apt 4B'})
+        validators=[RegexValidator(
+            r'^[a-zA-Z0-9\s,.-]+$',
+            'Enter a valid address. For example: 123 Main St, Apt 4B.'
+        )],
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., 123 Main St, Apt 4B'}),
+        help_text='Enter your complete address including apartment number if applicable.',
+        error_messages={
+            'required': 'Address is required.',
+            'max_length': 'Address cannot exceed 255 characters.',
+        }
     )
+    
     city = forms.CharField(
         max_length=100,
-        validators=[RegexValidator(r'^[a-zA-Z\s]+$', 'Enter a valid city name.')],
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., New York'})
+        validators=[RegexValidator(
+            r'^[a-zA-Z\s]+$',
+            'Enter a valid city name. For example: New York.'
+        )],
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., New York'}),
+        error_messages={
+            'required': 'City is required.',
+            'max_length': 'City name cannot exceed 100 characters.',
+        }
     )
+    
     postal_code = forms.CharField(
         max_length=20,
-        validators=[RegexValidator(r'^\d{5}(-\d{4})?$|^[A-Z]\d[A-Z] \d[A-Z]\d$', 'Enter a valid postal code.')],
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., 10001 or A1B 2C3'})
+        validators=[RegexValidator(
+            r'^\d{5}(-\d{4})?$|^[A-Z]\d[A-Z] \d[A-Z]\d$',
+            'Enter a valid postal code. For example: 10001 or A1B 2C3.'
+        )],
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., 10001 or A1B 2C3'}),
+        error_messages={
+            'required': 'Postal code is required.',
+            'max_length': 'Postal code cannot exceed 20 characters.',
+        }
     )
+    
     phone_number = forms.CharField(
         max_length=15,
-        validators=[RegexValidator(r'^\+?\d{10,15}$', 'Enter a valid phone number.')],
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., +1234567890'})
-    )
-
-    address = forms.CharField(
-        max_length=255,
-        validators=[RegexValidator(r'^[a-zA-Z0-9\s,.-]+$', 'Enter a valid address.')]
-    )
-    city = forms.CharField(
-        max_length=100,
-        validators=[RegexValidator(r'^[a-zA-Z\s]+$', 'Enter a valid city name.')]
-    )
-    postal_code = forms.CharField(
-        max_length=20,
-        validators=[RegexValidator(r'^\d{5}(-\d{4})?$|^[A-Z]\d[A-Z] \d[A-Z]\d$', 'Enter a valid postal code.')]
-    )
-    phone_number = forms.CharField(
-        max_length=15,
-        validators=[RegexValidator(r'^\+?\d{10,15}$', 'Enter a valid phone number.')]
+        validators=[RegexValidator(
+            r'^\+?\d{10,15}$',
+            'Enter a valid phone number. For example: +1234567890.'
+        )],
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., +1234567890'}),
+        error_messages={
+            'required': 'Phone number is required.',
+            'max_length': 'Phone number cannot exceed 15 characters.',
+        }
     )
