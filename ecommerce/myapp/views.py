@@ -1,16 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest,HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from django.contrib.auth.views import LogoutView
-from django.urls import reverse
+from django.views.decorators.csrf import csrf_protect
 from .models import Product, Cart, CartItem, Order, OrderItem, Profile, Payment, ShippingDetails
 from .forms import CustomUserCreationForm, CustomLoginForm, UserUpdateForm, ProfileUpdateForm, CheckoutForm
 import logging
-from django.middleware.csrf import get_token
 
+from django.middleware.csrf import get_token
+from decimal import Decimal
 logger = logging.getLogger(__name__)
 
 # View to list all products on the home page
@@ -19,87 +18,160 @@ def products_view(request):
     return render(request, 'index.html', {'products': products})  # Render the product list on the home page
 
 # View to get the current user's cart items
-@login_required
+@csrf_protect
 def get_cart(request):
-    cart = get_object_or_404(Cart, user=request.user)  # Retrieve the user's cart or return a 404 if not found
-    cart_items = CartItem.objects.filter(cart=cart)  # Get all items in the cart
-    
-    # Prepare data for the JSON response
-    cart_items_data = [
-        {
-            'id': item.product.id,
-            'name': item.product.name,
-            'price': item.product.price,
-            'quantity': item.quantity
-        }
-        for item in cart_items
-    ]
-    
-    return JsonResponse({'cart_items': cart_items_data})  # Return cart items as a JSON response
+    if request.user.is_authenticated:
+        # For authenticated users, retrieve cart from the database
+        cart = get_object_or_404(Cart, user=request.user)
+        cart_items = CartItem.objects.filter(cart=cart)
+        cart_items_data = [
+            {
+                'id': item.product.id,
+                'name': item.product.name,
+                'price': item.product.price,
+                'quantity': item.quantity
+            }
+            for item in cart_items
+        ]
+    else:
+        # For anonymous users, retrieve cart from the session
+        cart = request.session.get('cart', {})
+        cart_items_data = [
+            {
+                'id': int(product_id),
+                'name': item['name'],
+                'price': item['price'],
+                'quantity': item['quantity'],
+                'image': item.get('image')
+            }
+            for product_id, item in cart.items()
+        ]
+
+    return JsonResponse({'cart_items': cart_items_data})
 
 # View to handle adding a product to the cart
-@csrf_exempt
+@csrf_protect
 def add_to_cart(request):
     if request.method == 'POST':
-        product_id = int(request.POST.get('product_id'))  # Extract product ID from the POST request
-        quantity = int(request.POST.get('quantity'))  # Extract quantity from the POST request
-        product = get_object_or_404(Product, id=product_id)  # Retrieve the product or return a 404 if not found
+        try:
+            # Extract product_id and quantity from POST request
+            product_id = int(request.POST.get('product_id'))
+            quantity = int(request.POST.get('quantity'))
+        except (TypeError, ValueError):
+            return JsonResponse({'status': 'error', 'message': 'Invalid product ID or quantity'}, status=400)
 
-        # Retrieve or create a cart for the user
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        
-        # Retrieve or create a cart item for this product in the user's cart
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        if not created:
-            cart_item.increase_quantity(quantity)  # Update quantity if item already exists
-        else:
-            cart_item.quantity = quantity  # Set initial quantity if item is new
+        # Retrieve the product or return a 404 if not found
+        product = get_object_or_404(Product, id=product_id)
+
+        if request.user.is_authenticated:
+            # For authenticated users, use the database cart
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+            if not created:
+                cart_item.quantity += quantity  # Update quantity if item already exists
+            else:
+                cart_item.quantity = quantity  # Set initial quantity if item is new
             cart_item.save()
-        
-        return JsonResponse({'status': 'success'})  # Return success response
-    
-    return JsonResponse({'status': 'error'}, status=400)  # Return error response for non-POST requests
+        else:
+            # For anonymous users, use the session-based cart
+            cart = request.session.get('cart', {})
+            if str(product_id) in cart:
+                cart[str(product_id)]['quantity'] += quantity
+            else:
+                cart[str(product_id)] = {
+                    'name': product.name,
+                    'price': float(product.price),  # Convert Decimal to float
+                    'quantity': quantity,
+                    'image': product.image.url
+                }
+            request.session['cart'] = cart
 
+        return JsonResponse({'status': 'success', 'message': 'Item added to cart successfully'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
 
 # View to handle removing a product from the cart
-@csrf_exempt
+@csrf_protect
 def remove_from_cart(request):
     if request.method == 'POST':
-        product_id = int(request.POST.get('product_id'))  # Extract product ID from POST request
-        cart = get_object_or_404(Cart, user=request.user)  # Retrieve the user's cart or return a 404
-        product = get_object_or_404(Product, id=product_id)  # Retrieve the product or return a 404
-        
         try:
-            cart_item = CartItem.objects.get(cart=cart, product=product)  # Get the specific cart item
-            cart_item.delete()  # Remove the item from the cart
-            return JsonResponse({'status': 'success'})  # Return success response
-        except CartItem.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Item not found in cart'}, status=404)  # Return error if item not found
+            # Extract product_id from POST request
+            product_id = int(request.POST.get('product_id'))
+        except (TypeError, ValueError):
+            return JsonResponse({'status': 'error', 'message': 'Invalid product ID'}, status=400)
+        
+        if request.user.is_authenticated:
+            # For authenticated users, use the database cart
+            cart = get_object_or_404(Cart, user=request.user)
+            product = get_object_or_404(Product, id=product_id)
+            
+            try:
+                # Try to retrieve the cart item for the product
+                cart_item = CartItem.objects.get(cart=cart, product=product)
+                cart_item.delete()  # Remove the item from the cart
+                return JsonResponse({'status': 'success'})
+            except CartItem.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Item not found in cart'}, status=404)
+        else:
+            # For anonymous users, use the session-based cart
+            cart = request.session.get('cart', {})
+            if str(product_id) in cart:
+                del cart[str(product_id)]  # Remove the item from the session cart
+                request.session['cart'] = cart
+                return JsonResponse({'status': 'success'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Item not found in cart'}, status=404)
     
-    return JsonResponse({'status': 'error'}, status=400)  # Return error for non-POST requests
-
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
 # View to update the quantity of a product in the cart
-@csrf_exempt
+@csrf_protect
 def update_cart(request):
     if request.method == 'POST':
-        product_id = int(request.POST.get('product_id'))  # Extract product ID from POST request
-        action = request.POST.get('action')  # Extract action ('increase' or 'decrease')
-        cart = get_object_or_404(Cart, user=request.user)  # Retrieve the user's cart or return a 404
-        product = get_object_or_404(Product, id=product_id)  # Retrieve the product or return a 404
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)  # Retrieve or create cart item
+        # Extract product_id and action ('increase' or 'decrease') from POST request
+        product_id = int(request.POST.get('product_id'))
+        action = request.POST.get('action')
         
-        if action == 'increase':
-            cart_item.increase_quantity()  # Increase quantity if action is 'increase'
-        elif action == 'decrease':
-            cart_item.decrease_quantity()  # Decrease quantity if action is 'decrease'
-        
-        if cart_item.quantity <= 0:
-            cart_item.delete()  # Remove item if quantity drops to 0 or below
-        
-        return JsonResponse({'status': 'success'})  # Return success response
+        if request.user.is_authenticated:
+            # For authenticated users, use the database cart
+            cart = get_object_or_404(Cart, user=request.user)
+            product = get_object_or_404(Product, id=product_id)
+            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+            
+            if action == 'increase':
+                # Increase quantity if action is 'increase'
+                cart_item.quantity += 1
+            elif action == 'decrease':
+                # Decrease quantity if action is 'decrease'
+                cart_item.quantity -= 1
+            
+            if cart_item.quantity <= 0:
+                # Remove item if quantity drops to 0 or below
+                cart_item.delete()
+            else:
+                # Save the updated quantity if item is still in the cart
+                cart_item.save()
+            
+            return JsonResponse({'status': 'success'})
+        else:
+            # For anonymous users, use the session-based cart
+            cart = request.session.get('cart', {})
+            if str(product_id) in cart:
+                if action == 'increase':
+                    cart[str(product_id)]['quantity'] += 1
+                elif action == 'decrease':
+                    cart[str(product_id)]['quantity'] -= 1
+                
+                # Remove the item from the session cart if quantity is 0 or below
+                if cart[str(product_id)]['quantity'] <= 0:
+                    del cart[str(product_id)]
+                
+                request.session['cart'] = cart
+                return JsonResponse({'status': 'success'})
+            
+            return JsonResponse({'status': 'error', 'message': 'Item not found in cart'}, status=404)
     
-    return JsonResponse({'status': 'error'}, status=400)  # Return error for non-POST requests
-
+    # Return an error for non-POST requests
+    return JsonResponse({'status': 'error'}, status=400)
 # View to provide the CSRF token for JavaScript to use
 def csrf_token(request):
     return JsonResponse({'csrfToken': get_token(request)})  # Return CSRF token in JSON response
@@ -148,41 +220,34 @@ def signup_view(request):
 @csrf_protect
 def login_view(request):
     if request.method == 'POST':
-        form = CustomLoginForm(request, data=request.POST)  # Form for user login
+        form = CustomLoginForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)  # Authenticate user
+            user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)  # Log in the user
-                if user.is_superuser:
-                    return redirect(reverse('admin:index'))  # Redirect superusers to the admin dashboard
-                next_page = request.session.get('next_page', 'index')  # Get next page to redirect to
-                request.session.pop('next_page', None)  # Clear next_page from session
-                return redirect(next_page)  # Redirect to the next page
+                login(request, user)
+                next_page = request.session.get('next_page', 'index')
+                request.session.pop('next_page', None)
+                return redirect(next_page)
+            else:
+                messages.error(request, 'Invalid username or password.')
         else:
-            messages.error(request, 'Please correct the errors below.')  # Error message if form is invalid
+            messages.error(request, 'Please correct the errors below.')
     else:
-        form = CustomLoginForm()  # Empty form for GET request
+        form = CustomLoginForm()
 
-    return render(request, 'registration/login.html', {'form': form})  # Render login page
+    return render(request, 'registration/login.html', {'form': form})
 
 # View to redirect authenticated users to checkout or login for unauthenticated users
 @csrf_protect
 def some_view(request):
-    profiles = Profile.objects.filter(user__is_superuser=False)  # Filter out admin profiles
-
     if request.user.is_authenticated:
         return redirect('checkout')  # Redirect authenticated users to checkout page
     else:
         request.session['next_page'] = request.path  # Save current path to session
         return redirect('login')  # Redirect unauthenticated users to login page
 
-# Custom logout view that provides a message on successful logout
-class CustomLogoutView(LogoutView):
-    def get(self, request, *args, **kwargs):
-        messages.info(request, "You have been logged out successfully.")  # Log out message
-        return super().get(request, *args, **kwargs)  # Proceed with default logout behavior
 
 # View to check if a user is logged in
 def is_logged_in(request):
@@ -326,3 +391,4 @@ def order_confirmation_view(request, order_id):
         'shipping_fee': shipping_fee,
     }
     return render(request, 'order_confirmation.html', context)  # Render order confirmation page with context
+

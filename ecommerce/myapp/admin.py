@@ -36,7 +36,7 @@ class ShippingDetailsAdmin(admin.ModelAdmin):
     ordering = ('-order',)  # Order by the order field in descending order
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'phone_number')  # Display user and phone number
+    list_display = ('user', 'phone_number', 'address', 'city', 'postal_code') # Display user, phone number,address, city, and postsl code
     search_fields = ('user__username', 'phone_number')  # Search by username and phone number
 
 # Register models with the admin site

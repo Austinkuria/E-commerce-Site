@@ -44,11 +44,12 @@
                 <i class="bi bi-person-circle"></i> {{ user.username }}
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">
-                <i class="bi bi-box-arrow-right"></i> Log Out
-              </a>
-            </li>
+            <li class="nav-link">
+              <form id="logout-form" action="{% url 'logout' %}" method="post">
+                  <a href="#" onclick="document.getElementById('logout-form').submit(); return false;">Sign out</a>
+                  {% csrf_token %}
+              </form>
+          </li>
           {% else %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'login' %}">Login</a>

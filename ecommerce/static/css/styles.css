@@ -279,9 +279,19 @@ body {
     margin-bottom: 10px; /* Space below form controls */
 }
 
-.invalid-feedback {
+.errorlist {
     color: red; /* Red color for error messages */
-    font-size: 0.875em; /* Slightly smaller font size for feedback */
+    list-style-type: none; /* Remove bullets */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margin */
+}
+
+.errorlist li {
+    margin-bottom: 0.5em; /* Space between error messages */
+}
+
+.form-group {
+    margin-bottom: 1em; /* Space between form fields */
 }
 
 /* Responsive styles for Forms: Adjustments for smaller screens */
