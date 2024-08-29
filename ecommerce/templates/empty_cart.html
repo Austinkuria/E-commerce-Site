@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+
+{% block title %}Ecommerce-Site{% endblock %}
+
+{% block content %}
+    <!-- Modal -->
+    <div class="modal fade" id="emptyCartModal" tabindex="-1" aria-labelledby="emptyCartModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emptyCartModalLabel">Cart Empty</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Your cart is empty. Please add items to your cart before checking out.
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url 'index' %}" class="btn btn-primary">Go to back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var myModal = new bootstrap.Modal(document.getElementById('emptyCartModal'));
+            myModal.show();
+
+            // Redirect to index page when the modal is closed
+            var modalElement = document.getElementById('emptyCartModal');
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                window.location.href = "{% url 'index' %}";
+            });
+        });
+    </script>
+{% endblock %}

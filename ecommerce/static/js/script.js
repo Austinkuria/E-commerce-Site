@@ -61,33 +61,62 @@ $(document).ready(function() {
     }
 
     // Populate and display product details in the modal
-    $productModal.on('show.bs.modal', function(event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var productId = button.data('id'); // Get product ID from button data
-        var modal = $(this);
-
-        modal.find('#modalProductName').text(button.data('name'));
-        modal.find('#modalProductPrice').text('Ksh ' + button.data('price'));
-        modal.find('#modalProductDescription').text(button.data('description'));
-        modal.find('#modalProductImage').attr('src', button.data('image'));
-        modal.find('#modalProductReviews').text(button.data('reviews'));
-
-        // Create star rating display
-        var rating = button.data('rating');
-        var stars = '';
-        for (var i = 0; i < 5; i++) {
-            if (i < Math.floor(rating)) {
-                stars += '<i class="bi bi-star-fill"></i>';
-            } else if (i < rating) {
-                stars += '<i class="bi bi-star-half"></i>';
-            } else {
-                stars += '<i class="bi bi-star"></i>';
+    $(document).ready(function() {
+        $('#productModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var productId = button.data('id');
+            var productName = button.data('name');
+            var productPrice = button.data('price');
+            var productDescription = button.data('description');
+            var productImage = button.data('image');
+            var productRating = button.data('rating');
+            var productReviews = button.data('reviews');
+    
+            // Update modal content with product details
+            var modal = $(this);
+            modal.find('#modalProductName').text(productName);
+            modal.find('#modalProductPrice').text('Ksh ' + productPrice);
+            modal.find('#modalProductDescription').text(productDescription);
+            modal.find('#modalProductImage').attr('src', productImage);
+            modal.find('#modalProductReviews').text(productReviews);
+    
+            // Create star rating display
+            var stars = '';
+            for (var i = 0; i < 5; i++) {
+                if (i < Math.floor(productRating)) {
+                    stars += '<i class="bi bi-star-fill"></i>';
+                } else if (i < productRating) {
+                    stars += '<i class="bi bi-star-half"></i>';
+                } else {
+                    stars += '<i class="bi bi-star"></i>';
+                }
             }
-        }
-        modal.find('#modalProductRating').html(stars);
-
-        modal.find('#modal-add-to-cart').data('id', productId);
+            modal.find('#modalProductRating').html(stars);
+    
+            modal.find('#modal-add-to-cart').data('id', productId);
+            // Bind the product data to the "Order Now" button
+            modal.find('#order-now-button').data('id', productId);
+            modal.find('#order-now-button').data('name', productName);
+            modal.find('#order-now-button').data('price', productPrice);
+            modal.find('#order-now-button').data('description', productDescription);
+        });
+    
+        // Handle "Order Now" button click
+        $('#order-now-button').on('click', function() {
+            var productId = $(this).data('id');
+            var productName = $(this).data('name');
+            var productPrice = $(this).data('price');
+            var productDescription = $(this).data('description');
+    
+            if (productId !== undefined && productName !== undefined && productPrice !== undefined && productDescription !== undefined) {
+                // Redirect to checkout with product details
+                window.location.href = `/checkout/?product_id=${productId}&product_name=${encodeURIComponent(productName)}&product_price=${productPrice}&product_description=${encodeURIComponent(productDescription)}`;
+            } else {
+                console.error('Product details are missing, unable to proceed to checkout.');
+            }
+        });
     });
+    
 
     // Handle adding a product to the cart
     $('#modal-add-to-cart').on('click', function() {
@@ -174,4 +203,8 @@ $(document).ready(function() {
         });
     });
 
+
+
+    
 });
+
