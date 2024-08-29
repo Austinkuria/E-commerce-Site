@@ -33,6 +33,7 @@ body {
     border-radius: 5px; /* Rounded corners on hover for a soft effect */
 }
 
+
 /* Button styles */
 .btn-primary {
     background-color: #FF4500 !important; /* Dark orange-red background for primary buttons */
@@ -292,6 +293,11 @@ body {
 
 .form-group {
     margin-bottom: 1em; /* Space between form fields */
+}
+/* Ensure the navigation item displays as a block or inline-block */
+.nav-item {
+    display: inline-block;
+    margin-left: 15px; /* Adjust spacing between nav items as needed */
 }
 
 /* Responsive styles for Forms: Adjustments for smaller screens */

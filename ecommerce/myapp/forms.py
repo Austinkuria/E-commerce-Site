@@ -98,10 +98,9 @@ class CheckoutForm(forms.Form):
         max_length=255,
         validators=[RegexValidator(
             r'^[a-zA-Z0-9\s,.-]+$',
-            'Enter a valid address. For example: 123 Main St, Apt 4B.'
+            'Enter a valid address. For example: 123 Kimathi St, Ln 4B.'
         )],
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., 123 Main St, Apt 4B'}),  # Placeholder text for address input
-        help_text='Enter your complete address including apartment number if applicable.',  # Help text for users
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., 123 Kimathi St, Ln 4B'}),  # Placeholder text for address input
         error_messages={
             'required': 'Address is required.',  # Error message if the address field is left empty
             'max_length': 'Address cannot exceed 255 characters.',  # Error message if the address is too long
@@ -112,9 +111,9 @@ class CheckoutForm(forms.Form):
         max_length=100,
         validators=[RegexValidator(
             r'^[a-zA-Z\s]+$',
-            'Enter a valid city name. For example: New York.'
+            'Enter a valid city name. For example: Nairobi.'
         )],
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., New York'}),  # Placeholder text for city input
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., Nairobi'}),  # Placeholder text for city input
         error_messages={
             'required': 'City is required.',  # Error message if the city field is left empty
             'max_length': 'City name cannot exceed 100 characters.',  # Error message if the city name is too long

@@ -13,7 +13,7 @@
             <h3>Order Summary</h3>
             <ul>
                 {% for item in cart_items %}
-                    <li>{{ item.quantity }} x {{ item.product.name }}: ${{ item.get_total_price }}</li>
+                    <li>{{ item.quantity }} x {{ item.product.name }}: Ksh {{ item.get_total_price }}</li>
                 {% endfor %}
             </ul>
             <p>Shipping Fee: Ksh {{ shipping_fee }}</p>

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseBadRequest,HttpResponseRedirect
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from .models import Product, Cart, CartItem, Order, OrderItem, Profile, Payment, ShippingDetails
@@ -248,7 +248,12 @@ def some_view(request):
         request.session['next_page'] = request.path  # Save current path to session
         return redirect('login')  # Redirect unauthenticated users to login page
 
-
+# View to handle logout
+def log_out(request):
+    if request.method == 'POST':
+        logout(request)
+        return redirect('index')  # Redirects to the index page after logout
+    return render(request, 'log_out.html')
 # View to check if a user is logged in
 def is_logged_in(request):
     return JsonResponse({'is_authenticated': request.user.is_authenticated})  # Return authentication status as JSON
@@ -391,4 +396,3 @@ def order_confirmation_view(request, order_id):
         'shipping_fee': shipping_fee,
     }
     return render(request, 'order_confirmation.html', context)  # Render order confirmation page with context
-
