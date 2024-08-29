@@ -1,17 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator,MinValueValidator
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 # Product Model: Represents a product available in the store
 class Product(models.Model):
     name = models.CharField(max_length=255)  # Name of the product
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # Price of the product
+    price = models.DecimalField(
+        max_digits=4,decimal_places=2, default=0, validators=[MinValueValidator(0)])  # Price of the product, default is 0,rating is not negative
     image = models.ImageField(upload_to='products_images/', blank=True)  # Image of the product, not required
     description = models.TextField(blank=True, null=True)  # Description of the product, can be left blank
-    rating = models.PositiveIntegerField(default=0)  # Rating of the product, default is 0
-    reviews = models.PositiveIntegerField(default=0)  # Number of reviews, default is 0
+    rating = models.DecimalField(
+        max_digits=4,decimal_places=2, default=0, validators=[MinValueValidator(0)])# Rating of the product, default is 0,rating is not negative
+    reviews = models.CharField(max_length=255)  # Product reviews
 
     def __str__(self):
         return self.name  # Return the product name for display purposes

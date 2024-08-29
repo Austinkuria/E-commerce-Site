@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'myapp',
-    'corsheaders',
+    'corsheaders', # This allows us to use the django-cors-headers package to handle CORS (Cross-Origin Resource Sharing) in our Django project.
 ]
 
 MIDDLEWARE = [
@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Handles CORS headers
 ]
 
 
@@ -80,15 +81,42 @@ DATABASES = {
     'default': {
           'ENGINE': 'django.db.backends.sqlite3',
           'NAME': BASE_DIR / 'db.sqlite3',
-          'timeout': 50,  # Timeout in seconds
+          'timeout': 20,  # Timeout in seconds
     }
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Ensure session is using the database
+# Use the database to store session data.
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# Name of the session cookie.
 SESSION_COOKIE_NAME = 'sessionid'
+
+# Session cookie lifespan: 2 weeks.
 SESSION_COOKIE_AGE = 1209600  # 2 weeks
+
+# Keep the session cookie after closing the browser.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
+# Allow all origins to access the site (development only).
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Allow credentials like cookies to be sent with CORS requests.
+CORS_ALLOW_CREDENTIALS = True
+
+# Headers that are allowed in requests coming from different origins.
+CORS_ALLOW_HEADERS = [
+    "content-type",  # Allows content-type header for specifying the type of data being sent.
+    "authorization", # Allows authorization header for sending authentication credentials.
+]
+
+# HTTP methods that are permitted in CORS requests.
+CORS_ALLOWED_METHODS = [
+    "GET",     # Allows GET requests to fetch data.
+    "POST",    # Allows POST requests to submit data.
+    "PUT",     # Allows PUT requests to update data.
+    "DELETE",  # Allows DELETE requests to remove data.
+    "OPTIONS", # Allows OPTIONS requests to check available methods.
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

@@ -276,23 +276,32 @@ def calculate_shipping_fee(total_price):
 @csrf_protect
 def checkout_view(request):
     try:
+        # Try to get the cart associated with the current user.
         cart = Cart.objects.get(user=request.user)
     except Cart.DoesNotExist:
+        # If the cart does not exist, create a new cart for the user.
         cart = Cart.objects.create(user=request.user)
 
+    # Get all items in the cart for the current user.
     cart_items = CartItem.objects.filter(cart=cart)
 
+    # If the cart is empty, render a template to notify the user.
     if not cart_items.exists():
         return render(request, 'empty_cart.html')  # Render a template to show the alert
 
     if request.method == 'POST':
+        # Create a form instance with the submitted POST data.
         form = CheckoutForm(request.POST)
+        # Retrieve the selected payment method from the POST data.
         payment_method = request.POST.get('payment_method')
 
         if form.is_valid():
+            # Calculate the total price of the items in the cart.
             total_price = cart.get_total_price()
+            # Calculate the shipping fee based on the total price.
             shipping_fee = calculate_shipping_fee(total_price)
 
+            # Create a new order record with the total price and shipping fee.
             order = Order.objects.create(
                 user=request.user,
                 total=total_price + shipping_fee,
@@ -301,20 +310,33 @@ def checkout_view(request):
                 postal_code=form.cleaned_data['postal_code']
             )
 
+            # Update the order with the shipping fee.
             order.shipping_fee = shipping_fee
             order.save()
 
+            # Create OrderItem records for each item in the cart.
             for item in cart_items:
                 OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
 
-            ShippingDetails.objects.create(
+            # Create or update shipping details for the user.
+            shipping_details, created = ShippingDetails.objects.get_or_create(
                 user=request.user,
-                order=order,
-                address=form.cleaned_data['address'],
-                city=form.cleaned_data['city'],
-                postal_code=form.cleaned_data['postal_code']
+                defaults={
+                    'order': order,
+                    'address': form.cleaned_data['address'],
+                    'city': form.cleaned_data['city'],
+                    'postal_code': form.cleaned_data['postal_code']
+                }
             )
 
+            if not created:
+                # If shipping details already exist, update them with new data.
+                shipping_details.address = form.cleaned_data['address']
+                shipping_details.city = form.cleaned_data['city']
+                shipping_details.postal_code = form.cleaned_data['postal_code']
+                shipping_details.save()
+
+            # Create a payment record with the details of the payment.
             Payment.objects.create(
                 order=order,
                 payment_method=payment_method,
@@ -323,21 +345,27 @@ def checkout_view(request):
                 payment_status="pending"
             )
 
+            # Clear all items from the cart after checkout is complete.
             cart_items.delete()
 
+            # Redirect to the order confirmation page.
             return redirect('order_confirmation', order_id=order.id)
     else:
+        # If the request method is not POST, create an empty form.
         form = CheckoutForm()
 
+    # Calculate the total price and shipping fee to display in the checkout page.
     total_price = cart.get_total_price()
     shipping_fee = calculate_shipping_fee(total_price)
 
+    # Prepare the context for rendering the checkout page.
     context = {
         'form': form,
         'cart_items': cart_items,
         'shipping_fee': shipping_fee,
         'total_price': total_price + shipping_fee,
     }
+    # Render the checkout page with the provided context.
     return render(request, 'checkout.html', context)
 
 # View to place an order and handle order creation

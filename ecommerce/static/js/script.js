@@ -94,6 +94,7 @@ $(document).ready(function() {
             modal.find('#modalProductRating').html(stars);
     
             modal.find('#modal-add-to-cart').data('id', productId);
+
             // Bind the product data to the "Order Now" button
             modal.find('#order-now-button').data('id', productId);
             modal.find('#order-now-button').data('name', productName);
@@ -117,7 +118,6 @@ $(document).ready(function() {
         });
     });
     
-
     // Handle adding a product to the cart
     $('#modal-add-to-cart').on('click', function() {
         var productId = $(this).data('id');
@@ -202,9 +202,5 @@ $(document).ready(function() {
             }
         });
     });
-
-
-
-    
 });
 
