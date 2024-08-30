@@ -16,9 +16,9 @@
                     <li>{{ item.quantity }} x {{ item.product.name }}: Ksh {{ item.get_total_price }}</li>
                 {% endfor %}
             </ul>
-            <p>Shipping Fee: Ksh {{ shipping_fee }}</p>
-            <p>Total: Ksh {{ total_price }}</p>
-
+            <p>Total: Ksh {{ total_price|floatformat:2 }}</p>
+            <p>Shipping Fee: Ksh {{ shipping_fee|floatformat:2 }}</p>
+            
             <fieldset>
                 <legend>Select Payment Method</legend>
                 <label>
