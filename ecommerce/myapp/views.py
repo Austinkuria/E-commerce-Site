@@ -20,33 +20,39 @@ def products_view(request):
 # View to get the current user's cart items
 @csrf_protect
 def get_cart(request):
+    # Check if the user is authenticated (logged in)
     if request.user.is_authenticated:
-        # For authenticated users, retrieve cart from the database
-        cart = get_object_or_404(Cart, user=request.user)
+        # Try to get the cart for the authenticated user; if it doesn't exist, create one
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        # Retrieve all items in the user's cart
         cart_items = CartItem.objects.filter(cart=cart)
+        # Prepare a list of cart item details to return in JSON response
         cart_items_data = [
             {
-                'id': item.product.id,
-                'name': item.product.name,
-                'price': item.product.price,
-                'quantity': item.quantity
+                'id': item.product.id,  # Product ID
+                'name': item.product.name,  # Product name
+                'price': item.product.price,  # Product price
+                'quantity': item.quantity,  # Quantity of the product in the cart
+                'image': item.product.image.url  # URL of the product image
             }
             for item in cart_items
         ]
     else:
-        # For anonymous users, retrieve cart from the session
+        # If the user is not logged in, retrieve the cart from the session
         cart = request.session.get('cart', {})
+        # Prepare a list of cart item details stored in the session
         cart_items_data = [
             {
-                'id': int(product_id),
-                'name': item['name'],
-                'price': item['price'],
-                'quantity': item['quantity'],
-                'image': item.get('image')
+                'id': int(product_id),  # Product ID stored in session
+                'name': item['name'],  # Product name stored in session
+                'price': item['price'],  # Product price stored in session
+                'quantity': item['quantity'],  # Quantity of the product stored in session
+                'image': item.get('image')  # Image URL stored in session (if available)
             }
             for product_id, item in cart.items()
         ]
 
+    # Return the cart items in JSON format
     return JsonResponse({'cart_items': cart_items_data})
 
 # View to handle adding a product to the cart
@@ -272,36 +278,89 @@ def calculate_shipping_fee(total_price):
         return 150  # Return shipping fee for orders above 5000
 
 # View to handle checkout process
+
 @login_required
 @csrf_protect
 def checkout_view(request):
-    try:
-        # Try to get the cart associated with the current user.
-        cart = Cart.objects.get(user=request.user)
-    except Cart.DoesNotExist:
-        # If the cart does not exist, create a new cart for the user.
-        cart = Cart.objects.create(user=request.user)
+    if request.method == 'GET':
+        # Extract URL parameters if present for direct product checkout
+        product_id = request.GET.get('product_id')
+        product_name = request.GET.get('product_name')
+        product_price = request.GET.get('product_price')
+        product_description = request.GET.get('product_description')
 
-    # Get all items in the cart for the current user.
-    cart_items = CartItem.objects.filter(cart=cart)
+        if product_id and product_name and product_price:
+            # Handle checkout when directly ordering a single product
+            try:
+                product_price = float(product_price)  # Convert price from string to float
+                # Prepare a list with a single item for direct product checkout
+                cart_items = [{
+                    'quantity': 1,  # Direct order assumes quantity of 1
+                    'product': {
+                        'name': product_name,
+                        'price': product_price,
+                        'description': product_description,
+                    },
+                    'get_total_price': product_price,  # Total price is the same as product price for single item
+                }]
+                total_price = product_price  # Total price is the product price
+                shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
+            except ValueError:
+                return HttpResponse("Invalid price format.", status=400)  # Handle invalid price format
+        else:
+            # Handle checkout from the cart
+            try:
+                cart = Cart.objects.get(user=request.user)  # Get the cart for the logged-in user
+            except Cart.DoesNotExist:
+                return render(request, 'empty_cart.html')  # Notify user if cart does not exist
 
-    # If the cart is empty, render a template to notify the user.
-    if not cart_items.exists():
-        return render(request, 'empty_cart.html')  # Render a template to show the alert
+            cart_items = CartItem.objects.filter(cart=cart)  # Get all items in the user's cart
 
-    if request.method == 'POST':
-        # Create a form instance with the submitted POST data.
-        form = CheckoutForm(request.POST)
-        # Retrieve the selected payment method from the POST data.
-        payment_method = request.POST.get('payment_method')
+            if not cart_items.exists():
+                return render(request, 'empty_cart.html')  # Notify user if cart is empty
+
+            # Calculate total price of items in the cart
+            total_price = sum(item.get_total_price() for item in cart_items)
+            shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
+        
+        total_price += shipping_fee  # Add shipping fee to total price
+
+        # Create an empty form instance
+        form = CheckoutForm()
+
+        context = {
+            'form': form,
+            'cart_items': cart_items,
+            'total_price': total_price,
+            'shipping_fee': shipping_fee,
+        }
+        
+        # Render the checkout page with the context data
+        return render(request, 'checkout.html', context)
+
+    elif request.method == 'POST':
+        # Process form submission for both direct product orders and cart-based orders
+        try:
+            cart = Cart.objects.get(user=request.user)  # Get the cart for the logged-in user
+            cart_items = CartItem.objects.filter(cart=cart)  # Get all items in the cart
+        except Cart.DoesNotExist:
+            cart = None  # No cart found
+            cart_items = []  # Empty list for cart items
+
+        form = CheckoutForm(request.POST)  # Create form instance with submitted POST data
+        payment_method = request.POST.get('payment_method')  # Get selected payment method
 
         if form.is_valid():
-            # Calculate the total price of the items in the cart.
-            total_price = cart.get_total_price()
-            # Calculate the shipping fee based on the total price.
-            shipping_fee = calculate_shipping_fee(total_price)
+            if cart:
+                # Calculate total price from items in the cart
+                total_price = sum(item.get_total_price() for item in cart_items)
+                shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
+            else:
+                # Get total price from form data if not using cart
+                total_price = float(request.POST.get('total_price', 0))
+                shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
 
-            # Create a new order record with the total price and shipping fee.
+            # Create a new order with total price and shipping fee
             order = Order.objects.create(
                 user=request.user,
                 total=total_price + shipping_fee,
@@ -310,15 +369,16 @@ def checkout_view(request):
                 postal_code=form.cleaned_data['postal_code']
             )
 
-            # Update the order with the shipping fee.
-            order.shipping_fee = shipping_fee
+            order.shipping_fee = shipping_fee  # Set shipping fee for the order
             order.save()
 
-            # Create OrderItem records for each item in the cart.
-            for item in cart_items:
-                OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
+            if cart:
+                # Create OrderItem records for each item in the cart
+                for item in cart_items:
+                    OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
+                cart_items.delete()  # Clear items from the cart after checkout
 
-            # Create or update shipping details for the user.
+            # Create or update shipping details for the user
             shipping_details, created = ShippingDetails.objects.get_or_create(
                 user=request.user,
                 defaults={
@@ -328,45 +388,33 @@ def checkout_view(request):
                     'postal_code': form.cleaned_data['postal_code']
                 }
             )
-
             if not created:
-                # If shipping details already exist, update them with new data.
+                # Update existing shipping details if already present
                 shipping_details.address = form.cleaned_data['address']
                 shipping_details.city = form.cleaned_data['city']
                 shipping_details.postal_code = form.cleaned_data['postal_code']
                 shipping_details.save()
 
-            # Create a payment record with the details of the payment.
+            # Record the payment details
             Payment.objects.create(
                 order=order,
                 payment_method=payment_method,
                 amount=order.total,
-                transaction_id="N/A",
-                payment_status="pending"
+                transaction_id="N/A",  # Placeholder for transaction ID
+                payment_status="pending"  # Placeholder for payment status
             )
 
-            # Clear all items from the cart after checkout is complete.
-            cart_items.delete()
-
-            # Redirect to the order confirmation page.
+            # Redirect to order confirmation page
             return redirect('order_confirmation', order_id=order.id)
-    else:
-        # If the request method is not POST, create an empty form.
-        form = CheckoutForm()
 
-    # Calculate the total price and shipping fee to display in the checkout page.
-    total_price = cart.get_total_price()
-    shipping_fee = calculate_shipping_fee(total_price)
-
-    # Prepare the context for rendering the checkout page.
-    context = {
-        'form': form,
-        'cart_items': cart_items,
-        'shipping_fee': shipping_fee,
-        'total_price': total_price + shipping_fee,
-    }
-    # Render the checkout page with the provided context.
-    return render(request, 'checkout.html', context)
+        # Prepare context data to render the checkout page if form is invalid
+        context = {
+            'form': form,
+            'cart_items': cart_items,
+            'shipping_fee': shipping_fee,
+            'total_price': total_price,
+        }
+        return render(request, 'checkout.html', context) # Render checkout page with context
 
 # View to place an order and handle order creation
 @login_required

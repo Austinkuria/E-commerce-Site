@@ -8,7 +8,7 @@ from django.dispatch import receiver
 class Product(models.Model):
     name = models.CharField(max_length=255)  # Name of the product
     price = models.DecimalField(
-        max_digits=4,decimal_places=2, default=0, validators=[MinValueValidator(0)])  # Price of the product, default is 0,rating is not negative
+        max_digits=12,decimal_places=2, default=0, validators=[MinValueValidator(0)])  # Price of the product, default is 0,rating is not negative
     image = models.ImageField(upload_to='products_images/', blank=True)  # Image of the product, not required
     description = models.TextField(blank=True, null=True)  # Description of the product, can be left blank
     rating = models.DecimalField(
@@ -76,6 +76,8 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"  # Display the order ID and user for clarity
 
+    def get_cart_items(self):
+        return sum(item.quantity for item in self.items.all())
     def calculate_total(self):
         """Calculate the total price for this order, including all items."""
         return sum(item.get_total_price() for item in self.items.all())

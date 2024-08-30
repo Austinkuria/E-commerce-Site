@@ -7,15 +7,18 @@
     <h2>Order Confirmation</h2>
     <p>Thank you for your order, {{ order.user.username }}!</p>
     <p>Your order number is {{ order.id }}.</p>
+    <p>Date Ordered: {{ order.created_at }}</p>
+    <p>Total Items: {{ order.get_cart_items }}</p>
+    
     <h3>Order Summary</h3>
     <ul>
         {% for item in order_items %}
-            <li>{{ item.quantity }} x {{ item.product.name }}: Ksh {{ item.price }}</li>
+            <li>{{ item.quantity }} x {{ item.product.name }}: Ksh {{ item.get_total }}</li>
         {% endfor %}
     </ul>
     <p>Total Price: Ksh {{ total_price }}</p>
     <p>Shipping Fee: Ksh {{ shipping_fee }}</p>
-    <p>Total: Ksh {{ total_price }}</p>
+    <p>Total: Ksh {{ total_price|add:shipping_fee }}</p>
     <p>We will send you an email with the order details.</p>
     <p>For any inquiries, please contact our customer service.</p>
 
