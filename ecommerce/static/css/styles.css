@@ -10,7 +10,7 @@ body {
     position: fixed; /* Keeps the navbar fixed at the top of the viewport */
     top: 0; /* Positions the navbar at the very top */
     width: 100%; /* Makes the navbar span the entire width of the viewport */
-    z-index: 1030; /* Ensures the navbar stays on top of other page elements */
+    z-index: 1030; /* Makes sure that the navbar stays on top of other page elements */
 }
 
 .navbar-brand {
@@ -205,7 +205,7 @@ body {
     border-radius: 2px; /* Slightly rounded corners */
     padding: 16px; /* Padding for a comfortable area */
     position: fixed; /* Keeps snackbar fixed on the viewport */
-    z-index: 1; /* Ensures snackbar appears above other content */
+    z-index: 1; /* Makes sure that snackbar appears above other content */
     left: 50%; /* Centers snackbar horizontally */
     bottom: 30px; /* Positions snackbar slightly above the bottom of the viewport */
     font-size: 17px; /* Font size for snackbar text */
@@ -293,7 +293,7 @@ body {
 .form-group {
     margin-bottom: 1em; /* Space between form fields */
 }
-/* Ensure the navigation item displays as a block or inline-block */
+/* The navigation item displays as a block or inline-block */
 .nav-item {
     display: inline-block;
     margin-left: 15px; /* Adjust spacing between nav items as needed */

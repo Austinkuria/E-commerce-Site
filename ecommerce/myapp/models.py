@@ -8,7 +8,7 @@ from django.dispatch import receiver
 class Product(models.Model):
     name = models.CharField(max_length=255)  # Name of the product
     price = models.DecimalField(
-        max_digits=12,decimal_places=2, default=0, validators=[MinValueValidator(0)])  # Price of the product, default is 0,rating is not negative
+        max_digits=12,decimal_places=2, default=0, validators=[MinValueValidator(0)])  # Price of the product, default is 0,price is not negative
     image = models.ImageField(upload_to='products_images/', blank=True)  # Image of the product, not required
     description = models.TextField(blank=True, null=True)  # Description of the product, can be left blank
     rating = models.DecimalField(
@@ -87,14 +87,21 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)  # Link to the order this item belongs to
     product = models.ForeignKey(Product, on_delete=models.CASCADE)  # The product this item represents
     quantity = models.PositiveIntegerField()  # Quantity of the product ordered
+    price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)]
+    )
 
-    def get_total_price(self):
-        """Calculate the total price for this order item based on its quantity."""
-        return self.quantity * self.product.price
+    @property
+    def total_price(self):
+        """Calculate the total price for this order item based on its quantity and product price."""
+        return self.quantity * self.price
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"  # Display the order item in a readable format
-
+    
 # Payment Model: Represents payment details for an order
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [

@@ -1,27 +1,36 @@
-{% extends "base.html" %}
-
-{% block title %}Order Confirmation{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Order Confirmation{% endblock %} {%
+block content %}
 <div class="container mt-5">
     <h2>Order Confirmation</h2>
     <p>Thank you for your order, {{ order.user.username }}!</p>
     <p>Your order number is {{ order.id }}.</p>
     <p>Date Ordered: {{ order.created_at }}</p>
-    <p>Total Items: {{ order.get_cart_items }}</p>
-    
+    <p>
+        Shipping Address: {{ order.address }}, {{ order.city }}, {{
+        order.postal_code }}
+    </p>
+    <p>Total Items: {{ order_items|length }}</p>
+    <!-- Display total number of items -->
+    <!-- Order Summary -->
     <h3>Order Summary</h3>
-    <ul>
-        {% for item in order_items %}
-            <li>{{ item.quantity }} x {{ item.product.name }}: Ksh {{ item.get_total }}</li>
+    <ul class="list-group">
+        {% for item in cart_items %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ item.quantity }} x {{ item.product.name }}: Ksh {{
+            item.get_total_price|floatformat:2 }}
+        </li>
         {% endfor %}
     </ul>
-    <p>Total Price: Ksh {{ total_price }}</p>
-    <p>Shipping Fee: Ksh {{ shipping_fee }}</p>
-    <p>Total: Ksh {{ total_price|add:shipping_fee }}</p>
+    <div class="mt-3 text-end">
+        <p>Shipping Fee: Ksh {{ shipping_fee|floatformat:2 }}</p>
+        <h5>Total: Ksh {{ total_price|floatformat:2 }}</h5>
+    </div>
+
     <p>We will send you an email with the order details.</p>
     <p>For any inquiries, please contact our customer service.</p>
 
-    <a href="{% url 'index' %}" class="btn btn-primary">Back to Home</a>
+    <div class="back-button">
+        <a href="{% url 'index' %}" class="btn btn-primary">Go Back</a>
+    </div>
 </div>
 {% endblock %}

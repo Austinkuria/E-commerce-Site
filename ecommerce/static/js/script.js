@@ -100,22 +100,26 @@ $(document).ready(function() {
             modal.find('#order-now-button').data('name', productName);
             modal.find('#order-now-button').data('price', productPrice);
             modal.find('#order-now-button').data('description', productDescription);
+        
         });
     
         // Handle "Order Now" button click
-        $('#order-now-button').on('click', function() {
-            var productId = $(this).data('id');
-            var productName = $(this).data('name');
-            var productPrice = $(this).data('price');
-            var productDescription = $(this).data('description');
-    
-            if (productId !== undefined && productName !== undefined && productPrice !== undefined && productDescription !== undefined) {
-                // Redirect to checkout with product details
-                window.location.href = `/checkout/?product_id=${productId}&product_name=${encodeURIComponent(productName)}&product_price=${productPrice}&product_description=${encodeURIComponent(productDescription)}`;
-            } else {
-                console.error('Product details are missing, unable to proceed to checkout.');
-            }
-        });
+    $('#order-now-button').on('click', function() {
+        var productId = $(this).data('id');
+        var productName = $(this).data('name');
+        var productPrice = $(this).data('price');
+        var productDescription = $(this).data('description');
+        var productQuantity = document.getElementById('modalProductQuantity').value; // Get quantity
+
+
+        if (productId !== undefined && productName !== undefined && productPrice !== undefined && productDescription !== undefined  && productQuantity !== undefined) {
+            // Redirect to checkout with product details
+            window.location.href = `/checkout/?product_id=${productId}&product_name=${encodeURIComponent(productName)}&product_price=${productPrice}&product_description=${encodeURIComponent(productDescription)}&product_quantity=${productQuantity}`;
+        } else {
+            console.error('Product details are missing, unable to proceed to checkout.');
+        }
+    });
+
     });
     
     // Handle adding a product to the cart

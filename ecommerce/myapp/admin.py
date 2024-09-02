@@ -47,3 +47,31 @@ admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 admin.site.register(ShippingDetails, ShippingDetailsAdmin)
 admin.site.register(Profile, ProfileAdmin)
+class MyAdminSite(admin.AdminSite):
+    site_header = 'My E-Commerce Admin'
+    site_title = 'E-Commerce Admin Portal'
+    index_title = 'Welcome to the E-Commerce Admin Dashboard'
+    site_url = '/'
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('dashboard/', self.admin_view(custom_admin_dashboard), name='custom_admin_dashboard'),
+        ]
+        return custom_urls + urls
+
+    def index(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['custom_dashboard_url'] = 'custom_admin_dashboard'
+        return super().index(request, extra_context=extra_context)
+
+admin_site = MyAdminSite(name='myadmin')
+
+# Register models with the custom admin site
+admin_site.register(Product, ProductAdmin)
+admin_site.register(Cart, CartAdmin)
+admin_site.register(CartItem, CartItemAdmin)
+admin_site.register(Order, OrderAdmin)
+admin_site.register(OrderItem, OrderItemAdmin)
+admin_site.register(ShippingDetails, ShippingDetailsAdmin)
+admin_site.register(Profile, ProfileAdmin)

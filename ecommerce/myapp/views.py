@@ -277,55 +277,110 @@ def calculate_shipping_fee(total_price):
     else:
         return 150  # Return shipping fee for orders above 5000
 
-# View to handle checkout process
-
+# View to handle the checkout process
 @login_required
 @csrf_protect
 def checkout_view(request):
     if request.method == 'GET':
-        # Extract URL parameters if present for direct product checkout
+        # Initialize variables for the checkout process
+        cart_items = []
+        total_price = 0
+        shipping_fee = 0
+
+        # Get the product details from the query parameters
         product_id = request.GET.get('product_id')
         product_name = request.GET.get('product_name')
         product_price = request.GET.get('product_price')
         product_description = request.GET.get('product_description')
+        product_quantity = int(request.GET.get('product_quantity', 1))  # Updated parameter name
 
         if product_id and product_name and product_price:
-            # Handle checkout when directly ordering a single product
+            # Handle the case where the user clicks "Order Now" from the product details modal
             try:
-                product_price = float(product_price)  # Convert price from string to float
-                # Prepare a list with a single item for direct product checkout
+                # Retrieve the product using the provided product ID
+                product = Product.objects.get(id=product_id)
+                # Convert the product price from string to float
+                product_price = float(product_price)
+                # Calculate the total price based on quantity
+                total_price = product_price * product_quantity
+                # Calculate the shipping fee based on the total price
+                shipping_fee = calculate_shipping_fee(total_price)
+
+                # Create an order with the total price including shipping fee
+                order = Order.objects.create(
+                    user=request.user,
+                    total=total_price + shipping_fee,  # Add the shipping fee to the total price
+                )
+
+                # Create an order item for the product being ordered
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=product_quantity,  # Use the correct quantity
+                    price=product_price * product_quantity  # Update price based on quantity
+                )
+
+                # Prepare the cart items to be passed to the template
                 cart_items = [{
-                    'quantity': 1,  # Direct order assumes quantity of 1
+                    'quantity': product_quantity,  # Use the passed quantity
                     'product': {
                         'name': product_name,
                         'price': product_price,
                         'description': product_description,
                     },
-                    'get_total_price': product_price,  # Total price is the same as product price for single item
+                    'get_total_price': product_price * product_quantity,
                 }]
-                total_price = product_price  # Total price is the product price
-                shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
+
+                # Store the order ID in the session for use on the confirmation page
+                request.session['order_id'] = order.id
+
+            except Product.DoesNotExist:
+                # Handle the case where the product is not found
+                return HttpResponse("Product not found.", status=404)
             except ValueError:
-                return HttpResponse("Invalid price format.", status=400)  # Handle invalid price format
+                # Handle invalid price format
+                return HttpResponse("Invalid price format.", status=400)
         else:
-            # Handle checkout from the cart
+            # Handle the case where items are in the user's cart
             try:
-                cart = Cart.objects.get(user=request.user)  # Get the cart for the logged-in user
+                # Retrieve the user's cart
+                cart = Cart.objects.get(user=request.user)
+                # Get all items in the cart
+                cart_items = CartItem.objects.filter(cart=cart)
+                if cart_items.exists():
+                    # Calculate the total price of all items in the cart
+                    total_price = sum(item.get_total_price() for item in cart_items)
+                    # Calculate the shipping fee based on the total price
+                    shipping_fee = calculate_shipping_fee(total_price)
+
+                    # Create an order with the total price including shipping fee
+                    order = Order.objects.create(
+                        user=request.user,
+                        total=total_price + shipping_fee,  # Add the shipping fee to the total price
+                    )
+
+                    # Create an order item for each item in the cart
+                    for item in cart_items:
+                        OrderItem.objects.create(
+                            order=order,
+                            product=item.product,
+                            quantity=item.quantity,
+                            price=item.product.price * item.quantity  # Ensure price reflects quantity
+                        )
+
+                    # Store the order ID in the session for use on the confirmation page
+                    request.session['order_id'] = order.id
+
+                else:
+                    # If the cart is empty, render an empty cart page
+                    return render(request, 'empty_cart.html')
             except Cart.DoesNotExist:
-                return render(request, 'empty_cart.html')  # Notify user if cart does not exist
+                # Handle the case where the cart is not found
+                return render(request, 'empty_cart.html')
 
-            cart_items = CartItem.objects.filter(cart=cart)  # Get all items in the user's cart
-
-            if not cart_items.exists():
-                return render(request, 'empty_cart.html')  # Notify user if cart is empty
-
-            # Calculate total price of items in the cart
-            total_price = sum(item.get_total_price() for item in cart_items)
-            shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
-        
-        total_price += shipping_fee  # Add shipping fee to total price
-
-        # Create an empty form instance
+        # Add shipping fee to the total price
+        total_price += shipping_fee
+        # Create a blank checkout form to display in the template
         form = CheckoutForm()
 
         context = {
@@ -334,139 +389,133 @@ def checkout_view(request):
             'total_price': total_price,
             'shipping_fee': shipping_fee,
         }
-        
+
         # Render the checkout page with the context data
         return render(request, 'checkout.html', context)
 
     elif request.method == 'POST':
-        # Process form submission for both direct product orders and cart-based orders
-        try:
-            cart = Cart.objects.get(user=request.user)  # Get the cart for the logged-in user
-            cart_items = CartItem.objects.filter(cart=cart)  # Get all items in the cart
-        except Cart.DoesNotExist:
-            cart = None  # No cart found
-            cart_items = []  # Empty list for cart items
-
-        form = CheckoutForm(request.POST)  # Create form instance with submitted POST data
-        payment_method = request.POST.get('payment_method')  # Get selected payment method
-
+        # Process the submitted checkout form data
+        form = CheckoutForm(request.POST)
         if form.is_valid():
-            if cart:
-                # Calculate total price from items in the cart
-                total_price = sum(item.get_total_price() for item in cart_items)
-                shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
+            # Retrieve and clean form data
+            address = form.cleaned_data.get('address')
+            city = form.cleaned_data.get('city')
+            postal_code = form.cleaned_data.get('postal_code')
+
+            # Retrieve the order ID from the session
+            order_id = request.session.get('order_id')
+            if order_id:
+                try:
+                    # Retrieve the order using the order ID
+                    order = Order.objects.get(id=order_id)
+                    # Update the order with the address details
+                    order.address = address
+                    order.city = city
+                    order.postal_code = postal_code
+                    order.save()
+
+                    # Clear the cart after saving the order
+                    cart = Cart.objects.get(user=request.user)
+                    cart_items = CartItem.objects.filter(cart=cart)
+                    cart_items.delete()
+
+                    # Redirect to the order confirmation page
+                    return redirect('order_confirmation', order_id=order.id)
+
+                except Order.DoesNotExist:
+                    # Handle the case where the order is not found
+                    return HttpResponse("Order not found.", status=404)
             else:
-                # Get total price from form data if not using cart
-                total_price = float(request.POST.get('total_price', 0))
-                shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
+                # Handle the case where no order ID is found in the session
+                return HttpResponse("No order found in session.", status=400)
+        else:
+            # Recalculate total price and shipping fee in case of form validation errors
+            try:
+                cart_items = CartItem.objects.filter(cart=Cart.objects.get(user=request.user))
+                total_price = sum(item.get_total_price() for item in cart_items)
+                shipping_fee = calculate_shipping_fee(total_price)
+            except Cart.DoesNotExist:
+                cart_items = []
+                total_price = 0
+                shipping_fee = 0
 
-            # Create a new order with total price and shipping fee
-            order = Order.objects.create(
-                user=request.user,
-                total=total_price + shipping_fee,
-                address=form.cleaned_data['address'],
-                city=form.cleaned_data['city'],
-                postal_code=form.cleaned_data['postal_code']
-            )
-
-            order.shipping_fee = shipping_fee  # Set shipping fee for the order
-            order.save()
-
-            if cart:
-                # Create OrderItem records for each item in the cart
-                for item in cart_items:
-                    OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
-                cart_items.delete()  # Clear items from the cart after checkout
-
-            # Create or update shipping details for the user
-            shipping_details, created = ShippingDetails.objects.get_or_create(
-                user=request.user,
-                defaults={
-                    'order': order,
-                    'address': form.cleaned_data['address'],
-                    'city': form.cleaned_data['city'],
-                    'postal_code': form.cleaned_data['postal_code']
-                }
-            )
-            if not created:
-                # Update existing shipping details if already present
-                shipping_details.address = form.cleaned_data['address']
-                shipping_details.city = form.cleaned_data['city']
-                shipping_details.postal_code = form.cleaned_data['postal_code']
-                shipping_details.save()
-
-            # Record the payment details
-            Payment.objects.create(
-                order=order,
-                payment_method=payment_method,
-                amount=order.total,
-                transaction_id="N/A",  # Placeholder for transaction ID
-                payment_status="pending"  # Placeholder for payment status
-            )
-
-            # Redirect to order confirmation page
-            return redirect('order_confirmation', order_id=order.id)
-
-        # Prepare context data to render the checkout page if form is invalid
-        context = {
-            'form': form,
-            'cart_items': cart_items,
-            'shipping_fee': shipping_fee,
-            'total_price': total_price,
-        }
-        return render(request, 'checkout.html', context) # Render checkout page with context
+            context = {
+                'form': form,
+                'cart_items': cart_items,
+                'total_price': total_price,
+                'shipping_fee': shipping_fee,
+            }
+            # Render the checkout page again with form errors
+            return render(request, 'checkout.html', context)
 
 # View to place an order and handle order creation
 @login_required
 @csrf_protect
 def place_order(request):
     if request.method == 'POST':
-        cart = Cart.objects.get(user=request.user)  # Retrieve the user's cart
-        cart_items = CartItem.objects.filter(cart=cart)  # Get all items in the cart
-
-        if not cart_items.exists():
-            return JsonResponse({'status': 'error', 'message': 'Your cart is empty.'}, status=400)  # Error if cart is empty
-
         try:
-            # Calculate total price and shipping fee
+            # Retrieve the user's cart and cart items
+            cart = get_object_or_404(Cart, user=request.user)
+            cart_items = CartItem.objects.filter(cart=cart)
+
+            # Check if the cart is empty
+            if not cart_items.exists():
+                # Return an error message if the cart is empty
+                return JsonResponse({'status': 'error', 'message': 'Your cart is empty.'}, status=400)
+
+            # Calculate the total price of the cart items
             total_price = sum(item.product.price * item.quantity for item in cart_items)
             shipping_fee = calculate_shipping_fee(total_price)
-            
-            # Create and save the order
-            order = Order.objects.create(user=request.user)
-            for item in cart_items:
-                OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
-            
-            order.shipping_fee = shipping_fee
-            order.total_price = total_price + shipping_fee
-            order.save()
 
-            # Clear cart items after order is placed
+            # Create and save the order with shipping fee
+            order = Order.objects.create(
+                user=request.user,
+                shipping_fee=shipping_fee,
+                total_price=total_price + shipping_fee,
+            )
+
+            # Create OrderItems for each item in the cart
+            for item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price * item.quantity
+                )
+
+            # Clear the cart after placing the order
             cart_items.delete()
 
-            return redirect('order_confirmation', order_id=order.id)  # Redirect to order confirmation page
+            # Redirect to the order confirmation page
+            return redirect('order_confirmation', order_id=order.id)
+        
         except Exception as e:
-            logger.error(f"Error placing order: {e}")  # Log error if placing order fails
-            return JsonResponse({'status': 'error', 'message': 'An error occurred while placing your order.'}, status=500)  # Return error response
+            # Log any errors that occur during order placement
+            logger.error(f"Error placing order: {e}")
+            # Return an error message if an exception is raised
+            return JsonResponse({'status': 'error', 'message': 'An error occurred while placing your order.'}, status=500)
     else:
-        return HttpResponseBadRequest("Invalid request method.")  # Return error for non-POST requests
+        # Handle invalid request method
+        return HttpResponseBadRequest("Invalid request method.")
 
 # View to display order confirmation
 @login_required
 def order_confirmation_view(request, order_id):
-    try:
-        order = Order.objects.get(id=order_id, user=request.user)  # Retrieve the order or return a 404 if not found
-    except Order.DoesNotExist:
-        return redirect('checkout')  # Redirect to checkout if order does not exist
-
-    # Calculate total price and shipping fee for the order
-    total_price = sum(item.get_total_price() for item in order.items.all())
-    shipping_fee = calculate_shipping_fee(total_price)
+    # Retrieve the order using the order ID and ensure it belongs to the current user
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Retrieve all order items associated with the order
+    order_items = order.items.all()
+    
+    # Calculate the total price of the order items
+    total_price = sum(item.total_price for item in order_items)
+    shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
 
     context = {
         'order': order,
-        'order_items': order.items.all(),
+        'order_items': order_items,  # Pass order items to the template
         'total_price': total_price,
         'shipping_fee': shipping_fee,
     }
-    return render(request, 'order_confirmation.html', context)  # Render order confirmation page with context
+    # Render the order confirmation page with the context data
+    return render(request, 'order_confirmation.html', context)
