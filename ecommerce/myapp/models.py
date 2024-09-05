@@ -137,20 +137,41 @@ class Profile(models.Model):
         max_length=15,
         blank=True,
         null=True,
-        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")]
-    )  # Phone number with validation, can be left blank
-    address = models.CharField(max_length=255, blank=True, null=True)  # Address of the user, can be left blank
-    city = models.CharField(max_length=100, blank=True, null=True)  # City of the user, can be left blank
-    postal_code = models.CharField(max_length=20, blank=True, null=True)  # Postal code of the user, can be left blank
-    profile_picture = models.ImageField(upload_to='profile_pictures/', default='default.jpg')  # Profile picture with a default image
+        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be in the format: '+999999999'. Up to 15 digits allowed.")],
+        help_text="Enter your phone number with the country code, e.g., +123456789.",
+    )  # Phone number with validation and help text
+    address = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True,
+        help_text="Enter your full address.",
+    )  # Address of the user, with help text
+    city = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True,
+        help_text="Enter the city where you live.",
+    )  # City of the user, with help text
+    postal_code = models.CharField(
+        max_length=20, 
+        blank=True, 
+        null=True,
+        help_text="Enter your postal code.",
+        validators=[RegexValidator(regex=r'^\d{4,10}$', message="Postal code must contain between 4 and 10 digits.")],
+    )  # Postal code with validation and help text
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/', 
+        default='default.jpg',
+        help_text="Upload a profile picture. If left blank, the default picture will be used.",
+    )  # Profile picture with help text
 
     def __str__(self):
-        return f'{self.user.username} Profile'  # Display profile information for clarity
+        return f'{self.user.username} Profile'  # String representation for the profile
 
     def save(self, *args, **kwargs):
         """Save the profile, ensuring it's correctly saved."""
         super().save(*args, **kwargs)
-
+        
 # Signal handlers to automatically create and save user profiles
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

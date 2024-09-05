@@ -8,32 +8,32 @@ from .models import Profile
 class CustomUserCreationForm(forms.ModelForm):
     username = forms.CharField(
         max_length=150,
-        validators=[RegexValidator(
-            regex=r'^[\w.@+-]+$',
-            message='Username can only contain letters, digits, and @/./+/-/_ characters.'
-        )],
+        # validators=[RegexValidator(
+        #     regex=r'^[\w.@+-]+$',
+        #     message='Username can only contain letters, digits, and @/./+/-/_ characters.'
+        # )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., john_doe123'})  # Placeholder text for username input
     )
     email = forms.EmailField(
-        validators=[RegexValidator(
-            regex=r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
-            message='Enter a valid email address in the format: example@domain.com'
-        )],
+        # validators=[RegexValidator(
+        #     regex=r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
+        #     message='Enter a valid email address in the format: example@domain.com'
+        # )],
         widget=forms.EmailInput(attrs={'placeholder': 'e.g., example@domain.com'})  # Placeholder text for email input
     )
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'At least 8 characters with letters and numbers'}),  # Placeholder text for password input
-        validators=[RegexValidator(
-            regex=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',
-            message='Password must be at least 8 characters long and include both letters and numbers.'
-        )]
+        # validators=[RegexValidator(
+        #     regex=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',
+        #     message='Password must be at least 8 characters long and include both letters and numbers.'
+        # )]
     )
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'Re-enter your password'}),  # Placeholder text for password confirmation
-        validators=[RegexValidator(
-            regex=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',
-            message='Password must be at least 8 characters long and include both letters and numbers.'
-        )]
+        # validators=[RegexValidator(
+        #     regex=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',
+        #     message='Password must be at least 8 characters long and include both letters and numbers.'
+        # )]
     )
 
     class Meta:
@@ -60,10 +60,10 @@ class CustomUserCreationForm(forms.ModelForm):
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(
         max_length=150,
-        validators=[RegexValidator(
-            regex=r'^[\w.@+-]+$',
-            message='Username can only contain letters, digits, and @/./+/-/_ characters.'
-        )],
+        # validators=[RegexValidator(
+        #     regex=r'^[\w.@+-]+$',
+        #     message='Username can only contain letters, digits, and @/./+/-/_ characters.'
+        # )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., john_doe123'})  # Placeholder text for username input
     )
     password = forms.CharField(
@@ -81,25 +81,76 @@ class UserUpdateForm(forms.ModelForm):
         fields = ['username', 'email']  # Fields included in the form
 
 # Profile Update Form: Allows users to update their profile details
-class ProfileUpdateForm(forms.ModelForm):
+
+class UserUpdateForm(forms.ModelForm):
     class Meta:
-        model = Profile  # The form is based on the Profile model
-        fields = ['phone_number', 'address', 'city', 'postal_code', 'profile_picture']  # Fields included in the form
-        widgets = {
-            'phone_number': forms.TextInput(attrs={'placeholder': 'e.g., +1234567890'}),  # Placeholder text for phone number input
-            'address': forms.TextInput(attrs={'placeholder': 'e.g., 123 Main St, Apt 4B'}),  # Placeholder text for address input
-            'city': forms.TextInput(attrs={'placeholder': 'e.g., New York'}),  # Placeholder text for city input
-            'postal_code': forms.TextInput(attrs={'placeholder': 'e.g., 10001 or A1B 2C3'}),  # Placeholder text for postal code input
+        model = User
+        fields = ['username', 'email']
+        help_texts = {
+            'username': 'Enter a unique username.',
+            'email': 'Enter your email address.',
+        }
+        error_messages = {
+            'username': {
+                'unique': "This username is already taken. Please choose another one.",
+            },
+            'email': {
+                'invalid': "Enter a valid email address.",
+            },
         }
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("This email is already in use. Please choose another.")
+        return email
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    phone_number = forms.CharField(
+        required=False,
+        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be in the format: '+999999999'. Up to 15 digits allowed.")],
+        help_text="Enter your phone number with the country code, e.g., +123456789."
+    )
+    postal_code = forms.CharField(
+        required=False,
+        validators=[RegexValidator(regex=r'^\d{4,10}$', message="Postal code must contain between 4 and 10 digits.")],
+        help_text="Enter your postal code."
+    )
+
+    class Meta:
+        model = Profile
+        fields = ['phone_number', 'address', 'city', 'postal_code', 'profile_picture']
+        help_texts = {
+            'phone_number': 'Enter your phone number in international format.',
+            'address': 'Enter your full address.',
+            'city': 'Enter your city of residence.',
+            'postal_code': 'Enter your postal code.',
+            'profile_picture': 'Upload your profile picture.',
+        }
+        error_messages = {
+            'phone_number': {
+                'invalid': "Phone number must be in the format '+999999999'.",
+            },
+            'postal_code': {
+                'invalid': "Postal code must be numeric and between 4 and 10 digits.",
+            },
+        }
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if phone_number and not phone_number.startswith('+'):
+            raise forms.ValidationError("Phone number must start with a '+' sign.")
+        return phone_number
+        
 # Checkout Form: Collects and validates shipping and contact information during checkout
 class CheckoutForm(forms.Form):
     address = forms.CharField(
         max_length=255,
-        validators=[RegexValidator(
-            r'^[a-zA-Z0-9\s,.-]+$',
-            'Enter a valid address. For example: 123 Kimathi St, Ln 4B.'
-        )],
+        # validators=[RegexValidator(
+        #     r'^[a-zA-Z0-9\s,.-]+$',
+        #     'Enter a valid address. For example: 123 Kimathi St, Ln 4B.'
+        # )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., 123 Kimathi St, Ln 4B'}),  # Placeholder text for address input
         error_messages={
             'required': 'Address is required.',  # Error message if the address field is left empty
@@ -109,10 +160,10 @@ class CheckoutForm(forms.Form):
     
     city = forms.CharField(
         max_length=100,
-        validators=[RegexValidator(
-            r'^[a-zA-Z\s]+$',
-            'Enter a valid city name. For example: Nairobi.'
-        )],
+        # validators=[RegexValidator(
+        #     r'^[a-zA-Z\s]+$',
+        #     'Enter a valid city name. For example: Nairobi.'
+        # )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., Nairobi'}),  # Placeholder text for city input
         error_messages={
             'required': 'City is required.',  # Error message if the city field is left empty
@@ -122,10 +173,10 @@ class CheckoutForm(forms.Form):
     
     postal_code = forms.CharField(
         max_length=20,
-        validators=[RegexValidator(
-            r'^\d{5}(-\d{4})?$|^[A-Z]\d[A-Z] \d[A-Z]\d$',
-            'Enter a valid postal code. For example: 10001 or A1B 2C3.'
-        )],
+        # validators=[RegexValidator(
+        #     r'^\d{5}(-\d{4})?$|^[A-Z]\d[A-Z] \d[A-Z]\d$',
+        #     'Enter a valid postal code. For example: 10001 or A1B 2C3.'
+        # )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., 10001 or A1B 2C3'}),  # Placeholder text for postal code input
         error_messages={
             'required': 'Postal code is required.',  # Error message if the postal code field is left empty
@@ -135,10 +186,10 @@ class CheckoutForm(forms.Form):
     
     phone_number = forms.CharField(
         max_length=15,
-        validators=[RegexValidator(
-            r'^\+?\d{10,15}$',
-            'Enter a valid phone number. For example: +1234567890.'
-        )],
+        # validators=[RegexValidator(
+        #     r'^\+?\d{10,15}$',
+        #     'Enter a valid phone number. For example: +1234567890.'
+        # )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., +1234567890'}),  # Placeholder text for phone number input
         error_messages={
             'required': 'Phone number is required.',  # Error message if the phone number field is left empty

@@ -195,6 +195,7 @@ def profile(request):
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)  # Form for updating user details
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)  # Form for updating profile details
+        
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()  # Save user details
             profile_form.save()  # Save profile details
@@ -528,23 +529,3 @@ def order_confirmation_view(request, order_id):
     return render(request, 'order_confirmation.html', context)
 
 
-# def custom_admin_index(request):
-#     # Gather statistics or data for the admin dashboard
-#     product_count = Product.objects.count()
-#     order_count = Order.objects.count()
-#     order_item_count = OrderItem.objects.count()
-    
-#     # Example of additional data you might need
-#     total_sales_month = Order.objects.filter(created_at__month=timezone.now().month).aggregate(total=Sum('total'))['total']
-#     most_sold_product = OrderItem.objects.values('product').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity').first()
-
-#     context = {
-#         'site_title': 'My Custom Admin Dashboard',
-#         'site_header': 'Welcome to the Custom Admin Dashboard',
-#         'product_count': product_count,
-#         'order_count': order_count,
-#         'order_item_count': order_item_count,
-#         'total_sales_month': total_sales_month or 'No sales data',
-#         'most_sold_product': most_sold_product['product'] if most_sold_product else 'N/A',
-#     }
-#     return render(request, 'admin/custom_index.html', context)
