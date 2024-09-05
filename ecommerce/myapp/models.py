@@ -162,3 +162,12 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     """Save the profile when the user is saved."""
     instance.profile.save()
+
+class SalesReport(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity_sold = models.IntegerField()
+    total_revenue = models.DecimalField(max_digits=10, decimal_places=2)
+    report_date = models.DateField()
+
+    def __str__(self):
+        return f"Sales Report for {self.product.name} on {self.report_date}"

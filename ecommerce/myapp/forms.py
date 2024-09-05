@@ -68,10 +68,10 @@ class CustomLoginForm(AuthenticationForm):
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'Password'}),  # Placeholder text for password input
-        validators=[RegexValidator(
-            regex=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',
-            message='Password must be at least 8 characters long and include both letters and numbers.'
-        )]
+        # validators=[RegexValidator(
+        #     regex=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',
+        #     message='Password must be at least 8 characters long and include both letters and numbers.'
+        # )]
     )
 
 # User Update Form: Allows users to update their username and email

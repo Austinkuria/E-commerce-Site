@@ -1,16 +1,19 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest,HttpResponseRedirect
 from django.contrib import messages
-from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth import authenticate, logout, login, login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from .models import Product, Cart, CartItem, Order, OrderItem, Profile, Payment, ShippingDetails
 from .forms import CustomUserCreationForm, CustomLoginForm, UserUpdateForm, ProfileUpdateForm, CheckoutForm
 import logging
-
+from django.db.models import Sum
 from django.middleware.csrf import get_token
 from decimal import Decimal
 logger = logging.getLogger(__name__)
+from django.utils import timezone
+
+
 
 # View to list all products on the home page
 def products_view(request):
@@ -232,10 +235,14 @@ def login_view(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
-                next_page = request.session.get('next_page', 'index')
-                request.session.pop('next_page', None)
-                return redirect(next_page)
+                auth_login(request, user)
+                # Check if the user is a superuser or not
+                if user.is_superuser:
+                    # Redirect to the admin page
+                    return redirect('/admin/')
+                else:
+                    # Redirect to the index page
+                    return redirect('index')  # Ensure 'index' is the correct name of your index view
             else:
                 messages.error(request, 'Invalid username or password.')
         else:
@@ -519,3 +526,25 @@ def order_confirmation_view(request, order_id):
     }
     # Render the order confirmation page with the context data
     return render(request, 'order_confirmation.html', context)
+
+
+# def custom_admin_index(request):
+#     # Gather statistics or data for the admin dashboard
+#     product_count = Product.objects.count()
+#     order_count = Order.objects.count()
+#     order_item_count = OrderItem.objects.count()
+    
+#     # Example of additional data you might need
+#     total_sales_month = Order.objects.filter(created_at__month=timezone.now().month).aggregate(total=Sum('total'))['total']
+#     most_sold_product = OrderItem.objects.values('product').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity').first()
+
+#     context = {
+#         'site_title': 'My Custom Admin Dashboard',
+#         'site_header': 'Welcome to the Custom Admin Dashboard',
+#         'product_count': product_count,
+#         'order_count': order_count,
+#         'order_item_count': order_item_count,
+#         'total_sales_month': total_sales_month or 'No sales data',
+#         'most_sold_product': most_sold_product['product'] if most_sold_product else 'N/A',
+#     }
+#     return render(request, 'admin/custom_index.html', context)
