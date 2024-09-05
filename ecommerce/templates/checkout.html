@@ -24,18 +24,6 @@
                 <h5>Total: Ksh {{ total_price|floatformat:2 }}</h5>
             </div>
 
-            <fieldset>
-                <legend>Select Payment Method</legend>
-                <label>
-                    <input type="radio" name="payment_method" value="visa" required> Visa
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="mastercard" required> MasterCard
-                </label>
-                <label>
-                    <input type="radio" name="payment_method" value="mpesa" required> M-Pesa
-                </label>
-            </fieldset>
 
             <button type="submit" class="btn btn-primary mt-3">Place Order</button>
         </form>

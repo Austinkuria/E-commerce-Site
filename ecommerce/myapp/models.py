@@ -120,68 +120,84 @@ class Payment(models.Model):
         return f"Payment for Order {self.order.id} via {self.get_payment_method_display()}"  # Display payment details
 
 # ShippingDetails Model: Represents the shipping details for an order
+
 class ShippingDetails(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # Link to the user, if applicable
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     order = models.OneToOneField(Order, on_delete=models.CASCADE)  # Link to the order this shipping is for
-    city = models.CharField(max_length=100)  # City of delivery
-    address = models.CharField(max_length=255)  # Delivery address
-    postal_code = models.CharField(max_length=20)  # Postal code for delivery
+    address = models.CharField(
+        max_length=255,
+        help_text="Enter your full address."
+    )
+    city = models.CharField(
+        max_length=100,
+        help_text="Enter your city of delivery."
+    )
+    postal_code = models.CharField(
+        max_length=20,
+        validators=[RegexValidator(
+            regex=r'^\d{4,10}$',
+            message="Postal code must contain between 4 and 10 digits."
+        )],
+        help_text="Enter your postal code."
+    )
 
     def __str__(self):
         return f"{self.user.username}'s Shipping Details"  # Display shipping details for clarity
 
 # Profile Model: Represents additional information about a user
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Link to the user this profile belongs to
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number = models.CharField(
         max_length=15,
         blank=True,
         null=True,
-        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be in the format: '+999999999'. Up to 15 digits allowed.")],
-        help_text="Enter your phone number with the country code, e.g., +123456789.",
-    )  # Phone number with validation and help text
+        validators=[RegexValidator(
+            regex=r'^\+?\d{10,15}$',
+            message="Phone number must be in the format: '+1234567890'. Up to 15 digits allowed."
+        )],
+        help_text="Enter your phone number with the country code, e.g., +1234567890."
+    )
     address = models.CharField(
-        max_length=255, 
-        blank=True, 
+        max_length=255,
+        blank=True,
         null=True,
-        help_text="Enter your full address.",
-    )  # Address of the user, with help text
+        help_text="Enter your full address."
+    )
     city = models.CharField(
-        max_length=100, 
-        blank=True, 
+        max_length=100,
+        blank=True,
         null=True,
-        help_text="Enter the city where you live.",
-    )  # City of the user, with help text
+        help_text="Enter your city of residence."
+    )
     postal_code = models.CharField(
-        max_length=20, 
-        blank=True, 
+        max_length=20,
+        blank=True,
         null=True,
-        help_text="Enter your postal code.",
-        validators=[RegexValidator(regex=r'^\d{4,10}$', message="Postal code must contain between 4 and 10 digits.")],
-    )  # Postal code with validation and help text
+        validators=[RegexValidator(
+            regex=r'^\d{4,10}$',
+            message="Postal code must contain between 4 and 10 digits."
+        )],
+        help_text="Enter your postal code."
+    )
     profile_picture = models.ImageField(
-        upload_to='profile_pictures/', 
+        upload_to='profile_pictures/',
         default='default.jpg',
-        help_text="Upload a profile picture. If left blank, the default picture will be used.",
-    )  # Profile picture with help text
+        help_text="Upload a profile picture. If left blank, the default picture will be used."
+    )
 
     def __str__(self):
-        return f'{self.user.username} Profile'  # String representation for the profile
+        return f'{self.user.username} Profile'
 
     def save(self, *args, **kwargs):
-        """Save the profile, ensuring it's correctly saved."""
         super().save(*args, **kwargs)
         
-# Signal handlers to automatically create and save user profiles
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    """Create a profile when a new user is created."""
     if created:
         Profile.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    """Save the profile when the user is saved."""
     instance.profile.save()
 
 class SalesReport(models.Model):
