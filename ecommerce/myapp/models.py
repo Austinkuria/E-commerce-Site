@@ -77,10 +77,10 @@ class Order(models.Model):
         return f"Order {self.id} by {self.user.username}"  # Display the order ID and user for clarity
 
     def get_cart_items(self):
-        return sum(item.quantity for item in self.items.all())
+            return sum(item.quantity for item in self.items.all())
     def calculate_total(self):
-        """Calculate the total price for this order, including all items."""
-        return sum(item.get_total_price() for item in self.items.all())
+            """Calculate the total price for this order, including all items."""
+            return sum(item.get_total_price() for item in self.items.all())
 
 # OrderItem Model: Represents a product included in an order
 class OrderItem(models.Model):
