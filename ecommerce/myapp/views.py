@@ -284,52 +284,39 @@ def calculate_shipping_fee(total_price):
         return 100  # Return shipping fee for orders between 1001 and 5000
     else:
         return 150  # Return shipping fee for orders above 5000
+
 @login_required
 @csrf_protect
 def checkout_view(request):
     if request.method == 'GET':
-        # Initialize variables for the checkout process
         cart_items = []
         total_price = 0
         shipping_fee = 0
 
-        # Fetch user details
         user = request.user
-        profile = getattr(user, 'profile', None)  # Assuming the user has a related Profile model
-        
+        profile = getattr(user, 'profile', None)
+
         initial_data = {
             'address': profile.address if profile else '',
             'city': profile.city if profile else '',
             'postal_code': profile.postal_code if profile else '',
             'phone_number': profile.phone_number if profile else '',
         }
-        
-        # Get the product details from the query parameters
+
+        # Handle direct "Order Now" button click
         product_id = request.GET.get('product_id')
         product_name = request.GET.get('product_name')
         product_price = request.GET.get('product_price')
         product_description = request.GET.get('product_description')
-        product_quantity = int(request.GET.get('product_quantity', 1))  # Updated parameter name
+        product_quantity = request.GET.get('product_quantity')
 
         if product_id and product_name and product_price:
-            # Handle the case where the user clicks "Order Now" from the product details modal
             try:
                 product = Product.objects.get(id=product_id)
                 product_price = float(product_price)
+                product_quantity = int(product_quantity or 1)
                 total_price = product_price * product_quantity
                 shipping_fee = calculate_shipping_fee(total_price)
-
-                order = Order.objects.create(
-                    user=user,
-                    total=total_price + shipping_fee,
-                )
-
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    quantity=product_quantity,
-                    price=product_price * product_quantity
-                )
 
                 cart_items = [{
                     'quantity': product_quantity,
@@ -338,15 +325,22 @@ def checkout_view(request):
                         'price': product_price,
                         'description': product_description,
                     },
-                    'get_total_price': product_price * product_quantity,
+                    'get_total_price': total_price,
                 }]
 
-                request.session['order_id'] = order.id
+                # Create an order and set its ID in the session
+                order = Order.objects.create(
+                    user=user,
+                    shipping_fee=shipping_fee,
+                    total_price=total_price + shipping_fee,
+                )
+
+                request.session['order_id'] = order.id  # Set the order ID in the session
 
             except Product.DoesNotExist:
                 return HttpResponse("Product not found.", status=404)
             except ValueError:
-                return HttpResponse("Invalid price format.", status=400)
+                return HttpResponse("Invalid price or quantity format.", status=400)
         else:
             try:
                 cart = Cart.objects.get(user=user)
@@ -354,30 +348,14 @@ def checkout_view(request):
                 if cart_items.exists():
                     total_price = sum(item.get_total_price() for item in cart_items)
                     shipping_fee = calculate_shipping_fee(total_price)
-
-                    order = Order.objects.create(
-                        user=user,
-                        total=total_price + shipping_fee,
-                    )
-
-                    for item in cart_items:
-                        OrderItem.objects.create(
-                            order=order,
-                            product=item.product,
-                            quantity=item.quantity,
-                            price=item.product.price * item.quantity
-                        )
-
-                    request.session['order_id'] = order.id
-
                 else:
                     return render(request, 'empty_cart.html')
             except Cart.DoesNotExist:
                 return render(request, 'empty_cart.html')
 
-        # Convert Decimal values to float before storing in the session
-        request.session['total_price'] = float(total_price)
-        request.session['shipping_fee'] = float(shipping_fee)
+        if request.session.get('order_id') is None:
+            request.session['total_price'] = float(total_price)
+            request.session['shipping_fee'] = float(shipping_fee)
 
         form = CheckoutForm(initial=initial_data)
 
@@ -406,9 +384,8 @@ def checkout_view(request):
                     order.postal_code = postal_code
                     order.save()
 
-                    cart = Cart.objects.get(user=request.user)
-                    cart_items = CartItem.objects.filter(cart=cart)
-                    cart_items.delete()
+                    if not Cart.objects.filter(user=request.user).exists():
+                        return render(request, 'empty_cart.html')
 
                     return redirect('order_confirmation', order_id=order.id)
 
@@ -417,17 +394,14 @@ def checkout_view(request):
             else:
                 return HttpResponse("No order found in session.", status=400)
         else:
-            # Retrieve Decimal values from session and convert to float
-            total_price = float(request.session.get('total_price', 0))
-            shipping_fee = float(request.session.get('shipping_fee', 0))
-
             context = {
                 'form': form,
                 'cart_items': CartItem.objects.filter(cart=Cart.objects.get(user=request.user)),
-                'total_price': total_price,
-                'shipping_fee': shipping_fee,
+                'total_price': float(request.session.get('total_price', 0)),
+                'shipping_fee': float(request.session.get('shipping_fee', 0)),
             }
             return render(request, 'checkout.html', context)
+
 
 # View to place an order and handle order creation
 @login_required

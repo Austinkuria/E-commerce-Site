@@ -72,7 +72,7 @@ class Order(models.Model):
     city = models.CharField(max_length=100)  # City of delivery
     postal_code = models.CharField(max_length=20)  # Postal code for the delivery
     created_at = models.DateTimeField(auto_now_add=True)  # Timestamp when the order was created
-
+    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"  # Display the order ID and user for clarity
 

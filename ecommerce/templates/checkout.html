@@ -10,6 +10,19 @@
             {% csrf_token %}
             {{ form.as_p }}
 
+            <!-- Display form errors -->
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
             <!-- Order Summary -->
             <h3>Order Summary</h3>
             <ul class="list-group">
@@ -24,13 +37,12 @@
                 <h5>Total: Ksh {{ total_price|floatformat:2 }}</h5>
             </div>
 
-
             <button type="submit" class="btn btn-primary mt-3">Place Order</button>
         </form>
     </div>
-    <!-- back to home button -->
+    <!-- Back to home button -->
     <div class="modal-footer">
-        <a href="{% url 'index' %}" class="btn btn-primary">Go to back</a>
+        <a href="{% url 'index' %}" class="btn btn-primary">Go Back</a>
     </div>
 </div>
 {% endblock %}
