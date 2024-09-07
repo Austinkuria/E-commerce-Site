@@ -16,5 +16,5 @@ urlpatterns = [
     path('is_logged_in/', views.is_logged_in, name='is_logged_in'),
     path('place_order/', views.place_order, name='place_order'),
     path('checkout/', views.checkout_view, name='checkout'),
-    path('order_confirmation/<int:order_id>/', views.order_confirmation_view, name='order_confirmation'),
+    path('order_confirmation/<int:order_id>/', views.order_confirmation_view, name='order_confirmation'),  # Maps 'order_confirmation/<int:order_id>/' URL to 'order_confirmation_view' and expects an integer 'order_id'
 ]
