@@ -59,6 +59,7 @@ def get_cart(request):
     return JsonResponse({'cart_items': cart_items_data})
 
 # View to handle adding a product to the cart
+
 @csrf_protect
 def add_to_cart(request):
     if request.method == 'POST':
@@ -98,7 +99,6 @@ def add_to_cart(request):
         return JsonResponse({'status': 'success', 'message': 'Item added to cart successfully'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
-
 # View to handle removing a product from the cart
 @csrf_protect
 def remove_from_cart(request):
@@ -293,7 +293,7 @@ def checkout_view(request):
         total_price = 0
         shipping_fee = 0
 
-        # Get the product details from the query parameters
+        # Get product details from GET parameters
         product_id = request.GET.get('product_id')
         product_name = request.GET.get('product_name')
         product_price = request.GET.get('product_price')
@@ -306,6 +306,14 @@ def checkout_view(request):
                 total_price = product_price * product_quantity
                 shipping_fee = calculate_shipping_fee(total_price)
 
+                # Store product details in session for use in POST
+                request.session['checkout_product'] = {
+                    'product_id': product_id,
+                    'product_name': product_name,
+                    'product_price': product_price,
+                    'product_quantity': product_quantity,
+                }
+
                 cart_items = [{
                     'quantity': product_quantity,
                     'product': {
@@ -315,22 +323,37 @@ def checkout_view(request):
                     },
                     'get_total_price': product_price * product_quantity,
                 }]
-
-                # Store product details in session for use in POST
-                request.session['checkout_product'] = {
-                    'product_id': product_id,
-                    'product_name': product_name,
-                    'product_price': product_price,
-                    'product_quantity': product_quantity,
-                }
-
             except Product.DoesNotExist:
                 return HttpResponse("Product not found.", status=404)
             except ValueError:
                 return HttpResponse("Invalid price format.", status=400)
 
-        # Add shipping fee to total price
+        else:
+            # Handle cart-based checkout
+            if request.user.is_authenticated:
+                cart, created = Cart.objects.get_or_create(user=request.user)
+                cart_items = CartItem.objects.filter(cart=cart)
+                total_price = sum(item.product.price * item.quantity for item in cart_items)
+            else:
+                cart = request.session.get('cart', {})
+                for product_id, item in cart.items():
+                    try:
+                        product = Product.objects.get(id=product_id)
+                        cart_items.append({
+                            'quantity': item['quantity'],
+                            'product': {
+                                'name': product.name,
+                                'price': item['price'],
+                            },
+                            'get_total_price': item['quantity'] * item['price'],
+                        })
+                    except Product.DoesNotExist:
+                        continue
+                total_price = sum(item['get_total_price'] for item in cart_items)
+
+        shipping_fee = calculate_shipping_fee(total_price)
         total_price += shipping_fee
+
         form = CheckoutForm()
 
         context = {
@@ -341,15 +364,16 @@ def checkout_view(request):
         }
         return render(request, 'checkout.html', context)
 
-    elif request.method == 'POST': 
+    elif request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
             address = form.cleaned_data.get('address')
             city = form.cleaned_data.get('city')
             postal_code = form.cleaned_data.get('postal_code')
 
-            # Retrieve product details from session
+            # Retrieve product data from session if available
             product_data = request.session.get('checkout_product')
+
             if product_data:
                 try:
                     product = Product.objects.get(id=product_data['product_id'])
@@ -358,7 +382,7 @@ def checkout_view(request):
                         address=address,
                         city=city,
                         postal_code=postal_code,
-                        total=product_data['product_price'] * product_data['product_quantity'] + calculate_shipping_fee(product_data['product_price']),
+                        total=product_data['product_price'] * product_data['product_quantity'] + calculate_shipping_fee(product_data['product_price'] * product_data['product_quantity']),
                     )
                     OrderItem.objects.create(
                         order=order,
@@ -370,13 +394,57 @@ def checkout_view(request):
                     return redirect('order_confirmation', order_id=order.id)
                 except Product.DoesNotExist:
                     return HttpResponse("Product not found.", status=404)
+            else:
+                # Handle cart-based checkout
+                if request.user.is_authenticated:
+                    cart = get_object_or_404(Cart, user=request.user)
+                    cart_items = CartItem.objects.filter(cart=cart)
+                else:
+                    cart = request.session.get('cart', {})
+                    cart_items = []
+                    for product_id, item in cart.items():
+                        try:
+                            product = Product.objects.get(id=product_id)
+                            cart_items.append({
+                                'quantity': item['quantity'],
+                                'product': product,
+                                'get_total_price': item['quantity'] * item['price'],
+                            })
+                        except Product.DoesNotExist:
+                            continue
+
+                total_price = sum(item['get_total_price'] for item in cart_items)
+                shipping_fee = calculate_shipping_fee(total_price)
+
+                order = Order.objects.create(
+                    user=request.user,
+                    address=address,
+                    city=city,
+                    postal_code=postal_code,
+                    total=total_price + shipping_fee,
+                )
+
+                for item in cart_items:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item['product'],
+                        quantity=item['quantity'],
+                        price=item['get_total_price']
+                    )
+
+                # Clear the cart after placing the order
+                if request.user.is_authenticated:
+                    cart_items.delete()
+                else:
+                    request.session['cart'] = {}
+
+                return redirect('order_confirmation', order_id=order.id)
         else:
-            # On validation error, retrieve product data from session
-            product_data = request.session.get('checkout_product', {})
+            # On validation error, retrieve data from session or cart
+            product_data = request.session.get('checkout_product')
             if product_data:
                 total_price = product_data['product_price'] * product_data['product_quantity']
                 shipping_fee = calculate_shipping_fee(total_price)
-
                 cart_items = [{
                     'quantity': product_data['product_quantity'],
                     'product': {
@@ -385,15 +453,36 @@ def checkout_view(request):
                     },
                     'get_total_price': total_price,
                 }]
+                total_price += shipping_fee
+            else:
+                if request.user.is_authenticated:
+                    cart = get_object_or_404(Cart, user=request.user)
+                    cart_items = CartItem.objects.filter(cart=cart)
+                else:
+                    cart = request.session.get('cart', {})
+                    cart_items = []
+                    for product_id, item in cart.items():
+                        try:
+                            product = Product.objects.get(id=product_id)
+                            cart_items.append({
+                                'quantity': item['quantity'],
+                                'product': product,
+                                'get_total_price': item['quantity'] * item['price'],
+                            })
+                        except Product.DoesNotExist:
+                            continue
 
-                context = {
-                    'form': form,
-                    'cart_items': cart_items,
-                    'total_price': total_price + shipping_fee,
-                    'shipping_fee': shipping_fee,
-                }
-                return render(request, 'checkout.html', context)
+                total_price = sum(item['get_total_price'] for item in cart_items)
+                shipping_fee = calculate_shipping_fee(total_price)
+                total_price += shipping_fee
 
+            context = {
+                'form': form,
+                'cart_items': cart_items,
+                'total_price': total_price,
+                'shipping_fee': shipping_fee,
+            }
+            return render(request, 'checkout.html', context)
 
 # View to place an order and handle order creation
 @login_required
@@ -461,8 +550,8 @@ def order_confirmation_view(request, order_id):
     context = {
         'order': order,
         'order_items': order_items,  # Pass order items to the template
-        'shipping_fee': shipping_fee,
         'total_price': total_price + shipping_fee,
+        'shipping_fee': shipping_fee,
     }
     # Render the order confirmation page with the context data
     return render(request, 'order_confirmation.html', context)
