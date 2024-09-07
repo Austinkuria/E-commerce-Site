@@ -17,9 +17,29 @@ from django.utils import timezone
 
 # View to list all products on the home page
 def products_view(request):
-    products = Product.objects.all()  # Retrieve all products from the database
-    return render(request, 'index.html', {'products': products})  # Render the product list on the home page
+    if request.user.is_authenticated:
+        # Ensure the cart exists for the user
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_items = CartItem.objects.filter(cart=cart)
+    else:
+        # Handle session-based cart
+        cart = request.session.get('cart', {})
+        cart_items = [
+            {
+                'product': get_object_or_404(Product, id=int(product_id)),
+                'quantity': item['quantity'],
+                'price': item['price'],
+                'total_price': item['price'] * item['quantity']
+            }
+            for product_id, item in cart.items()
+        ]
 
+    products = Product.objects.all()
+    context = {
+        'products': products,
+        'cart_items': cart_items
+    }
+    return render(request, 'index.html', context)
 # View to get the current user's cart items
 @csrf_protect
 def get_cart(request):
@@ -59,38 +79,33 @@ def get_cart(request):
     return JsonResponse({'cart_items': cart_items_data})
 
 # View to handle adding a product to the cart
-
 @csrf_protect
 def add_to_cart(request):
     if request.method == 'POST':
         try:
-            # Extract product_id and quantity from POST request
             product_id = int(request.POST.get('product_id'))
             quantity = int(request.POST.get('quantity'))
         except (TypeError, ValueError):
             return JsonResponse({'status': 'error', 'message': 'Invalid product ID or quantity'}, status=400)
 
-        # Retrieve the product or return a 404 if not found
         product = get_object_or_404(Product, id=product_id)
 
         if request.user.is_authenticated:
-            # For authenticated users, use the database cart
             cart, created = Cart.objects.get_or_create(user=request.user)
             cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
             if not created:
-                cart_item.quantity += quantity  # Update quantity if item already exists
+                cart_item.quantity += quantity
             else:
-                cart_item.quantity = quantity  # Set initial quantity if item is new
+                cart_item.quantity = quantity
             cart_item.save()
         else:
-            # For anonymous users, use the session-based cart
             cart = request.session.get('cart', {})
             if str(product_id) in cart:
                 cart[str(product_id)]['quantity'] += quantity
             else:
                 cart[str(product_id)] = {
                     'name': product.name,
-                    'price': float(product.price),  # Convert Decimal to float
+                    'price': float(product.price),
                     'quantity': quantity,
                     'image': product.image.url
                 }
@@ -99,6 +114,7 @@ def add_to_cart(request):
         return JsonResponse({'status': 'success', 'message': 'Item added to cart successfully'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
 # View to handle removing a product from the cart
 @csrf_protect
 def remove_from_cart(request):
@@ -226,6 +242,7 @@ def signup_view(request):
     return render(request, 'user_auth/signup.html', {'form': form})  # Render registration page
 
 # View to handle user login
+# View to handle user login
 @csrf_protect
 def login_view(request):
     if request.method == 'POST':
@@ -236,6 +253,19 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 auth_login(request, user)
+                
+                # Sync session cart with database cart if needed
+                if 'cart' in request.session:
+                    cart = request.session.get('cart')
+                    db_cart, created = Cart.objects.get_or_create(user=user)
+                    for product_id, item in cart.items():
+                        product = get_object_or_404(Product, id=int(product_id))
+                        cart_item, created = CartItem.objects.get_or_create(cart=db_cart, product=product)
+                        cart_item.quantity = item['quantity']
+                        cart_item.save()
+                    # Clear session cart after syncing
+                    del request.session['cart']
+                
                 # Check if the user is a superuser or not
                 if user.is_superuser:
                     # Redirect to the admin page
@@ -327,24 +357,25 @@ def checkout_view(request):
                 return HttpResponse("Product not found.", status=404)
             except ValueError:
                 return HttpResponse("Invalid price format.", status=400)
-
         else:
             # Handle cart-based checkout
             if request.user.is_authenticated:
-                cart, created = Cart.objects.get_or_create(user=request.user)
+                cart = get_object_or_404(Cart, user=request.user)
                 cart_items = CartItem.objects.filter(cart=cart)
-                total_price = sum(item.product.price * item.quantity for item in cart_items)
+                if not cart_items:
+                    return render(request, 'empty_cart.html')
+                total_price = sum(item.get_total_price() for item in cart_items)
             else:
                 cart = request.session.get('cart', {})
+                if not cart:
+                    return render(request, 'empty_cart.html')
+                cart_items = []
                 for product_id, item in cart.items():
                     try:
                         product = Product.objects.get(id=product_id)
                         cart_items.append({
                             'quantity': item['quantity'],
-                            'product': {
-                                'name': product.name,
-                                'price': item['price'],
-                            },
+                            'product': product,
                             'get_total_price': item['quantity'] * item['price'],
                         })
                     except Product.DoesNotExist:
@@ -377,12 +408,16 @@ def checkout_view(request):
             if product_data:
                 try:
                     product = Product.objects.get(id=product_data['product_id'])
+                    item_total = product_data['product_price'] * product_data['product_quantity']
+                    shipping_fee = calculate_shipping_fee(item_total)
+                    total = item_total + shipping_fee
+
                     order = Order.objects.create(
                         user=request.user,
                         address=address,
                         city=city,
                         postal_code=postal_code,
-                        total=product_data['product_price'] * product_data['product_quantity'] + calculate_shipping_fee(product_data['product_price'] * product_data['product_quantity']),
+                        total=total,
                     )
                     OrderItem.objects.create(
                         order=order,
@@ -399,8 +434,12 @@ def checkout_view(request):
                 if request.user.is_authenticated:
                     cart = get_object_or_404(Cart, user=request.user)
                     cart_items = CartItem.objects.filter(cart=cart)
+                    if not cart_items:
+                        return render(request, 'empty_cart.html')
                 else:
                     cart = request.session.get('cart', {})
+                    if not cart:
+                        return render(request, 'empty_cart.html')
                     cart_items = []
                     for product_id, item in cart.items():
                         try:
@@ -413,28 +452,29 @@ def checkout_view(request):
                         except Product.DoesNotExist:
                             continue
 
-                total_price = sum(item['get_total_price'] for item in cart_items)
+                total_price = sum(item.get_total_price() for item in cart_items)
                 shipping_fee = calculate_shipping_fee(total_price)
+                total_price += shipping_fee
 
                 order = Order.objects.create(
                     user=request.user,
                     address=address,
                     city=city,
                     postal_code=postal_code,
-                    total=total_price + shipping_fee,
+                    total=total_price,
                 )
 
                 for item in cart_items:
                     OrderItem.objects.create(
                         order=order,
-                        product=item['product'],
-                        quantity=item['quantity'],
-                        price=item['get_total_price']
+                        product=item.product,
+                        quantity=item.quantity,
+                        price=item.product.price
                     )
 
                 # Clear the cart after placing the order
                 if request.user.is_authenticated:
-                    cart_items.delete()
+                    CartItem.objects.filter(cart=cart).delete()
                 else:
                     request.session['cart'] = {}
 
@@ -472,7 +512,7 @@ def checkout_view(request):
                         except Product.DoesNotExist:
                             continue
 
-                total_price = sum(item['get_total_price'] for item in cart_items)
+                total_price = sum(item.get_total_price() for item in cart_items)
                 shipping_fee = calculate_shipping_fee(total_price)
                 total_price += shipping_fee
 
@@ -550,8 +590,8 @@ def order_confirmation_view(request, order_id):
     context = {
         'order': order,
         'order_items': order_items,  # Pass order items to the template
-        'total_price': total_price + shipping_fee,
         'shipping_fee': shipping_fee,
+        'total_price': total_price + shipping_fee,
     }
     # Render the order confirmation page with the context data
     return render(request, 'order_confirmation.html', context)

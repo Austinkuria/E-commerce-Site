@@ -206,5 +206,6 @@ $(document).ready(function() {
             }
         });
     });
+    updateCart()
 });
 
