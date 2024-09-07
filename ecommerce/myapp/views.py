@@ -341,7 +341,7 @@ def checkout_view(request):
         }
         return render(request, 'checkout.html', context)
 
-    elif request.method == 'POST':
+    elif request.method == 'POST': 
         form = CheckoutForm(request.POST)
         if form.is_valid():
             address = form.cleaned_data.get('address')
@@ -461,8 +461,8 @@ def order_confirmation_view(request, order_id):
     context = {
         'order': order,
         'order_items': order_items,  # Pass order items to the template
-        'total_price': total_price,
         'shipping_fee': shipping_fee,
+        'total_price': total_price + shipping_fee,
     }
     # Render the order confirmation page with the context data
     return render(request, 'order_confirmation.html', context)
