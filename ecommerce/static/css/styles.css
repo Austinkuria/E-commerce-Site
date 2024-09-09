@@ -180,17 +180,17 @@ body {
     margin-top: auto; /* Pushes the text to the bottom of the card */
 }
 
-.card {
+.scale-on-hover:hover {
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition effects for scaling and shadow */
 }
 
-.card:hover {
+.scale-on-hover:hover {
     transform: scale(1.05); /* Slightly enlarges the card on hover */
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Adds a shadow effect on hover */
 }
 
 @media (max-width: 767.98px) {
-    .card:hover {
+    .scale-on-hover:hover:hover {
         transform: scale(1.01); /* Less scaling effect on smaller screens */
     }
 }
@@ -319,3 +319,25 @@ body {
         font-size: 0.8rem; /* Smaller font size for form controls on extra small screens */
     }
 }
+/* Custom Styles for Checkout Page */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+}
+
+/* Prevent scaling for the checkout card */
+.no-scale:hover {
+    transform: none;
+}
+
+h2, h3 {
+    font-weight: bold;
+}
+
+.modal-footer {
+    justify-content: center;
+}
+
+

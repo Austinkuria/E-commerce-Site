@@ -201,7 +201,7 @@ class Profile(models.Model):
             message="Postal code must contain between 4 and 10 digits."
         )],
         error_messages={
-            'max_length': 'Postal code cannot be longer than 20 characters.'
+            'max_length': 'Postal code cannot be longer than 10 digits.'
         }
     )  # Optional postal code; up to 20 characters with validation for format and length
     profile_picture = models.ImageField(

@@ -5,10 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from .models import Product, Cart, CartItem, Order, OrderItem, Profile, Payment, ShippingDetails
 from .forms import CustomUserCreationForm, CustomLoginForm, UserUpdateForm, ProfileUpdateForm, CheckoutForm
+from django.contrib import messages 
 import logging
-from django.db.models import Sum
 from django.middleware.csrf import get_token
-
+from django.core.mail import send_mail
+from django.conf import settings
 
 # Set up logging to track events and errors
 logger = logging.getLogger(__name__)
@@ -206,19 +207,24 @@ def profile(request):
         Profile.objects.create(user=request.user)  # Create profile if it doesn't exist
 
     if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST, instance=request.user)  # Form for updating user details
-        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)  # Form for updating profile details
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        
         if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()  # Save updated user details
-            profile_form.save()  # Save updated profile details
-            return redirect('profile')  # Redirect to profile page
+            user_form.save()
+            profile_form.save()
+            # Add success message
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('profile')
         else:
-            return render(request, 'users/profile.html', {'user_form': user_form, 'profile_form': profile_form})  # Render profile page with errors if forms are not valid
-    else:
-        user_form = UserUpdateForm(instance=request.user)  # Prepopulate form with current user data
-        profile_form = ProfileUpdateForm(instance=request.user.profile)  # Prepopulate form with current profile data
+            # If form is invalid, add error message
+            messages.error(request, 'Please correct the error below.')
 
-    return render(request, 'users/profile.html', {'user_form': user_form, 'profile_form': profile_form})  # Render profile page with forms
+    else:
+        user_form = UserUpdateForm(instance=request.user)
+        profile_form = ProfileUpdateForm(instance=request.user.profile)
+
+    return render(request, 'users/profile.html', {'user_form': user_form, 'profile_form': profile_form})
 
 # View to handle user registration
 @csrf_protect
@@ -516,7 +522,7 @@ def checkout_view(request):
                         except Product.DoesNotExist:
                             continue  # Skip if the product does not exist
 
-                total_price = sum(item['get_total_price'] for item in cart_items)  # Calculate total price
+                total_price = sum(item.get_total_price() for item in cart_items)  # Calculate total price
                 shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee
                 total_price += shipping_fee  # Add shipping fee to total price
 
@@ -544,16 +550,18 @@ def place_order(request):
                 # Return an error message if the cart is empty
                 return JsonResponse({'status': 'error', 'message': 'Your cart is empty.'}, status=400)
 
-            # Calculate the total price of the cart items
+            # Calculate total price and shipping fee
             total_price = sum(item.product.price * item.quantity for item in cart_items)
-            shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee
+            shipping_fee = calculate_shipping_fee(total_price)
+            total_with_shipping = total_price + shipping_fee
 
             # Create and save the order with shipping fee
             order = Order.objects.create(
                 user=request.user,
                 shipping_fee=shipping_fee,
-                total=total_price + shipping_fee,
+                total=total_with_shipping,
             )
+
 
             # Create OrderItems for each item in the cart
             for item in cart_items:
@@ -566,6 +574,9 @@ def place_order(request):
 
             # Clear the cart after placing the order
             cart_items.delete()  # Remove items from the database cart
+
+            # Send order confirmation email to the user
+            send_order_confirmation_email(request.user.email, total_price + shipping_fee)
 
             # Redirect to the order confirmation page
             return redirect('order_confirmation', order_id=order.id)
@@ -588,15 +599,26 @@ def order_confirmation_view(request, order_id):
     # Retrieve all order items associated with the order
     order_items = order.items.all()
     
-    # Calculate the total price of the order items
-    total_price = sum(item.total_price for item in order_items)
-    shipping_fee = calculate_shipping_fee(total_price)  # Calculate shipping fee based on total price
+    # Calculate total price including shipping fee
+    total_price = sum(item.price for item in order_items)  # Item price includes quantity
+    shipping_fee =  calculate_shipping_fee(total_price)
+    final_total = total_price + shipping_fee
 
     context = {
-        'order': order,  # Pass the order object to the template
-        'order_items': order_items,  # Pass order items to the template
+        'order': order,
+        'order_items': order_items,
         'shipping_fee': shipping_fee,
-        'total_price': total_price + shipping_fee,  # Pass the total price including shipping fee
+        'total_price': final_total,
     }
+
     # Render the order confirmation page with the context data
     return render(request, 'order_confirmation.html', context)
+
+# Define the email sending function
+def send_order_confirmation_email(user_email, total_price):
+    subject = "Order Confirmation"
+    message = f"Thank you for your order! The total amount is ${total_price:.2f}. We will notify you once your order is shipped."
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [user_email]
+    
+    send_mail(subject, message, from_email, recipient_list)

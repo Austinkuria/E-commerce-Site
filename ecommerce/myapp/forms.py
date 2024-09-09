@@ -13,7 +13,7 @@ class CustomUserCreationForm(forms.ModelForm):
         #     regex=r'^[\w.@+-]+$',  # Username must match this regex pattern
         #     message='Username can only contain letters, digits, and @/./+/-/_ characters.'
         # )],
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., john_doe123'})  # Placeholder text to guide users
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., johndoe'})  # Placeholder text to guide users
     )
     # Field for the email input
     email = forms.EmailField(
@@ -21,7 +21,7 @@ class CustomUserCreationForm(forms.ModelForm):
         #     regex=r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',  # Email must match this regex pattern
         #     message='Enter a valid email address in the format: example@domain.com'
         # )],
-        widget=forms.EmailInput(attrs={'placeholder': 'e.g., example@domain.com'})  # Placeholder text to guide users
+        widget=forms.EmailInput(attrs={'placeholder': 'e.g., johndoe@gmail.com'})  # Placeholder text to guide users
     )
     # Field for the first password input
     password1 = forms.CharField(
@@ -69,7 +69,7 @@ class CustomLoginForm(AuthenticationForm):
         #     regex=r'^[\w.@+-]+$',  # Username must match this regex pattern
         #     message='Username can only contain letters, digits, and @/./+/-/_ characters.'
         # )],
-        widget=forms.TextInput(attrs={'placeholder': 'e.g., john_doe123'})  # Placeholder text to guide users
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., johndoe'})  # Placeholder text to guide users
     )
     # Field for the password input
     password = forms.CharField(
@@ -111,7 +111,7 @@ class ProfileUpdateForm(forms.ModelForm):
     # Field for the phone number input
     phone_number = forms.CharField(
         required=False,  # This field is optional
-        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be in the format: '+999999999'. Up to 15 digits allowed.")],  # Validate phone number format
+        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be in the format: '+1234567890'. Up to 15 digits allowed.")],  # Validate phone number format
         help_text="Enter your phone number with the country code, e.g., +123456789."  # Help text for the phone number field
     )
     # Field for the postal code input
@@ -138,7 +138,7 @@ class ProfileUpdateForm(forms.ModelForm):
         }
         error_messages = {
             'phone_number': {
-                'invalid': "Phone number must be in the format '+999999999'.",  # Error message for invalid phone number
+                'invalid': "Phone number must be in the format '+1234567890'.",  # Error message for invalid phone number
             },
             'postal_code': {
                 'invalid': "Postal code must be numeric and between 4 and 10 digits.",  # Error message for invalid postal code
@@ -174,7 +174,7 @@ class BaseAddressForm(forms.Form):
         max_length=100,  # City name cannot exceed 100 characters
         validators=[RegexValidator(
             r'^[a-zA-Z\s]+$',  # City name must match this regex pattern
-            'Enter a valid city name. For example: Nairobi.'  # Error message for invalid city name
+            'Enter a valid city name. City name must contain only letters and spaces. For example: Nairobi.'  # Error message for invalid city name
         )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., Nairobi'}),  # Placeholder text to guide users
         error_messages={
@@ -188,12 +188,12 @@ class BaseAddressForm(forms.Form):
         max_length=20,  # Postal code cannot exceed 20 characters
         validators=[RegexValidator(
             r'^\d{4,10}$',  # Postal code must match this regex pattern
-            'Postal code must contain between 4 and 10 digits. For example: 10001.'  # Error message for invalid postal code
+            'Postal code must contain between 4 and 10 digits. For example: 12345.'  # Error message for invalid postal code
         )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., 12345'}),  # Placeholder text to guide users
         error_messages={
             'required': 'Please provide your postal code.',  # Error message if postal code field is empty
-            'max_length': 'Postal code cannot be longer than 20 characters.',  # Error message if postal code is too long
+            'max_length': 'Postal code cannot be longer than 10 digits.',  # Error message if postal code is too long
         }
     )
 
