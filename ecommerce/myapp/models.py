@@ -68,6 +68,14 @@ class CartItem(models.Model):
 
 # Order Model: Represents a completed order by a user
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processed', 'Processed'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+        ('canceled', 'Canceled'),
+    ]  # Choices for order status
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link to the user who placed the order; if the user is deleted, the order is also deleted
     total = models.DecimalField(max_digits=10, decimal_places=2)  # Total amount for the order; up to 10 digits with 2 decimal places
     address = models.CharField(max_length=255)  # Delivery address; limited to 255 characters
@@ -75,7 +83,8 @@ class Order(models.Model):
     postal_code = models.CharField(max_length=20)  # Postal code for the delivery; limited to 20 characters
     created_at = models.DateTimeField(auto_now_add=True)  # Automatically set the timestamp when the order is created
     shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Shipping fee; up to 10 digits with 2 decimal places; default is 0.00
-
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')  # Status of the order, default is 'pending'
+    
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"  # Returns a string representation of the order, including the order ID and username of the user
 
@@ -147,8 +156,8 @@ class ShippingDetails(models.Model):
     postal_code = models.CharField(
         max_length=20,
         validators=[RegexValidator(
-            regex=r'^\d{4,10}$',
-            message="Postal code must contain between 4 and 10 digits."
+            regex=r'^\d{1,10}$',
+            message="Postal code must contain between 1 and 10 digits."
         )],
         error_messages={
             'max_length': 'Postal code cannot be longer than 20 characters.'
@@ -197,8 +206,8 @@ class Profile(models.Model):
         blank=True,
         null=True,
         validators=[RegexValidator(
-            regex=r'^\d{4,10}$',
-            message="Postal code must contain between 4 and 10 digits."
+            regex=r'^\d{1,10}$',
+            message="Postal code must contain between 1 and 10 digits."
         )],
         error_messages={
             'max_length': 'Postal code cannot be longer than 10 digits.'
@@ -206,7 +215,7 @@ class Profile(models.Model):
     )  # Optional postal code; up to 20 characters with validation for format and length
     profile_picture = models.ImageField(
         upload_to='profile_pictures/',
-        default='default.jpg'
+        default='default.png'
     )  # Optional profile picture; uploaded to 'profile_pictures/' directory with a default image
 
     def __str__(self):

@@ -8,7 +8,7 @@
     <h2 class="text-center mb-4">Order Confirmation</h2>
     <div class="alert alert-success text-center" role="alert">
         <p>Thank you for your order, <strong>{{ order.user.username }}</strong>!</p>
-        <p>Your order number is <strong>#{{ order.id }}</strong>.</p>
+        <p>Your order number is <strong> {{ order.id }}</strong>.</p>
     </div>
 
     <!-- Order Details -->
@@ -40,6 +40,7 @@
 
     <!-- Notification and Back Button -->
     <p class="mt-4 text-center">We will send you an email with the order details and notify you once your order is shipped.</p>
+    <p class="mt-4 text-center">You can Track the status of your order here <a href="{% url 'track_order' %}">Track Order</a> .</p>
     <p class="text-center">For any inquiries, please contact our customer service.</p>
 
     <div class="text-center">

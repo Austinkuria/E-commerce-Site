@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Returns & Exchanges{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-4">Returns & Exchanges</h1>
+    <p class="text-muted text-center mb-5">At eCommerceSite, we want you to be completely satisfied with your purchase. If for any reason you're not, we're here to help.</p>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Returns</h2>
+        <p>You have 30 calendar days to return an item from the date you received it. To be eligible for a return, your item must be unused and in the same condition that you received it. Your item must be in the original packaging and needs to have the receipt or proof of purchase.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Refunds</h2>
+        <p>Once we receive your item, we will inspect it and notify you of the status of your refund after the inspection. If your return is approved, we will initiate a refund to your original method of payment within 7 business days.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Exchanges</h2>
+        <p>If you received a defective or damaged item, please contact us immediately for an exchange. We will arrange for the return and replacement of the defective product at no extra cost.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Contact Us</h2>
+        <p>If you have any questions on how to return your item, please contact us at <a href="mailto:eCommerceSite@gmail.com">eCommerceSite@gmail.com</a> or call us at +254 797 561 978.</p>
+    </div>
+
+    <!-- Back to Index Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'index' %}" class="btn btn-primary">Go Back</a>
+    </div>
+</div>
+{% endblock %}

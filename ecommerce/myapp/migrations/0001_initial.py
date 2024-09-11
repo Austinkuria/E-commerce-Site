@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
                 ('address', models.CharField(blank=True, error_messages={'max_length': 'Address cannot be longer than 255 characters.'}, max_length=255, null=True)),
                 ('city', models.CharField(blank=True, error_messages={'max_length': 'City name cannot be longer than 100 characters.'}, max_length=100, null=True, validators=[django.core.validators.RegexValidator(message='City name must contain only letters and spaces.', regex='^[a-zA-Z\\s]+$')])),
                 ('postal_code', models.CharField(blank=True, error_messages={'max_length': 'Postal code cannot be longer than 10 digits.'}, max_length=20, null=True, validators=[django.core.validators.RegexValidator(message='Postal code must contain between 4 and 10 digits.', regex='^\\d{4,10}$')])),
-                ('profile_picture', models.ImageField(default='default.jpg', upload_to='profile_pictures/')),
+                ('profile_picture', models.ImageField(default='default.png', upload_to='profile_pictures/')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),

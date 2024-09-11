@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Track Order{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-4">Track Your Order</h1>
+    <p class="text-muted text-center mb-5">Enter your order number and email address below to track the status of your order.</p>
+
+    {% if error_message %}
+    <div class="alert alert-danger text-center" role="alert">
+        {{ error_message }}
+    </div>
+    {% endif %}
+
+    <form action="{% url 'track_order' %}" method="POST" class="mx-auto" style="max-width: 500px; background-color: #f8f9fa; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        {% csrf_token %}
+        <div class="form-group mb-4">
+            <label for="order-number">Order Number:</label>
+            <input type="number" id="order-number" name="order_number" class="form-control" placeholder="Enter your order number" required>
+        </div>
+
+        <div class="form-group mb-4">
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email address" required>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-5">Track Order</button>
+        </div>
+    </form>
+
+    {% if order %}
+    <div class="mt-5 p-4" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <h2 class="text-center mb-4">Order Status</h2>
+        
+        {% if products %}
+        <p class="font-weight-bold">Order Items:</p>
+        <ul class="list-group mb-4">
+            {% for product in products %}
+                <li class="list-group-item">{{ product.quantity }} x {{ product.name }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <p><strong>Order Date:</strong> {{ order.created_at }}</p>
+        <p><strong>Total Price:</strong> Ksh{{ order.total }}</p>
+        <p><strong>Order Status:</strong> {{ order_status }}</p>
+    </div>
+    {% endif %}
+    
+    <!-- Back to Index Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'index' %}" class="btn btn-secondary">Go Back</a>
+    </div>
+</div>
+{% endblock %}

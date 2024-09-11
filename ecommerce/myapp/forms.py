@@ -9,35 +9,19 @@ class CustomUserCreationForm(forms.ModelForm):
     # Field for the username input
     username = forms.CharField(
         max_length=150,  # Username cannot exceed 150 characters
-        # validators=[RegexValidator(
-        #     regex=r'^[\w.@+-]+$',  # Username must match this regex pattern
-        #     message='Username can only contain letters, digits, and @/./+/-/_ characters.'
-        # )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., johndoe'})  # Placeholder text to guide users
     )
     # Field for the email input
     email = forms.EmailField(
-        # validators=[RegexValidator(
-        #     regex=r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',  # Email must match this regex pattern
-        #     message='Enter a valid email address in the format: example@domain.com'
-        # )],
         widget=forms.EmailInput(attrs={'placeholder': 'e.g., johndoe@gmail.com'})  # Placeholder text to guide users
     )
     # Field for the first password input
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'At least 8 characters with letters and numbers'}),  # Placeholder text to guide users
-        # validators=[RegexValidator(
-        #     regex=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',  # Password must match this regex pattern
-        #     message='Password must be at least 8 characters long and include both letters and numbers.'
-        # )]
     )
     # Field for the second password input (for confirmation)
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'Re-enter your password'}),  # Placeholder text to guide users
-        # validators=[RegexValidator(
-        #     regex=r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',  # Password must match this regex pattern
-        #     message='Password must be at least 8 characters long and include both letters and numbers.'
-        # )]
     )
 
     class Meta:
@@ -83,75 +67,71 @@ class CustomLoginForm(AuthenticationForm):
 # User Update Form: This form allows users to update their username and email
 class UserUpdateForm(forms.ModelForm):
     class Meta:
-        model = User  # This form is based on the User model
-        fields = ['username', 'email']  # Include these fields in the form
+        model = User
+        fields = ['username', 'email']
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'Enter your username'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Enter your email'}),
+        }
         help_texts = {
-            'username': 'Enter a unique username.',  # Help text for the username field
-            'email': 'Enter your email address.',  # Help text for the email field
+            'username': 'Enter a unique username.',
+            'email': 'Enter your email address.',
         }
         error_messages = {
             'username': {
-                'unique': "This username is already taken. Please choose another one.",  # Error message if username is not unique
+                'unique': "This username is already taken. Please choose another one.",
             },
             'email': {
-                'invalid': "Enter a valid email address.",  # Error message if email is invalid
+                'invalid': "Enter a valid email address.",
             },
         }
 
     def clean_email(self):
-        """Ensure that the email is unique."""
-        email = self.cleaned_data.get('email')  # Get the email from cleaned data
-        # Check if the email is already in use by another user (excluding the current user)
+        email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
-            raise forms.ValidationError("This email is already in use. Please choose another.")  # Raise an error if email is not unique
-        return email  # Return the valid email
+            raise forms.ValidationError("This email is already in use. Please choose another.")
+        return email
 
-# Profile Update Form: This form allows users to update their profile information
+
 class ProfileUpdateForm(forms.ModelForm):
-    # Field for the phone number input
     phone_number = forms.CharField(
-        required=False,  # This field is optional
-        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be in the format: '+1234567890'. Up to 15 digits allowed.")],  # Validate phone number format
-        help_text="Enter your phone number with the country code, e.g., +123456789."  # Help text for the phone number field
-    )
-    # Field for the postal code input
+    required=False,
+    validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be in the format: '+1234567890'. Up to 15 digits allowed.")],
+    help_text="Enter your phone number with the country code, e.g., +123456789.",
+    widget=forms.TextInput(attrs={'placeholder': 'Enter your phone number'})
+)
     postal_code = forms.CharField(
-        required=False,  # This field is optional
-        validators=[RegexValidator(regex=r'^\d{4,10}$', message="Postal code must contain between 4 and 10 digits.")],  # Validate postal code format
-        help_text="Enter your postal code."  # Help text for the postal code field
-    )
-    # Field for the profile picture upload
+    required=False,
+    validators=[RegexValidator(regex=r'^\d{1,10}$', message="Postal code must contain between 1 and 10 digits.")],
+    help_text="Enter your postal code.",
+    widget=forms.TextInput(attrs={'placeholder': 'Enter your postal code'})
+)
+
     profile_picture = forms.ImageField(
-        required=False,  # This field is optional
-        help_text="Upload your profile picture. If left blank, the default picture will be used."  # Help text for the profile picture field
+        required=False,
+        help_text="Upload your profile picture. If left blank, the default picture will be used."
     )
 
     class Meta:
-        model = Profile  # This form is based on the Profile model
-        fields = ['phone_number', 'address', 'city', 'postal_code', 'profile_picture']  # Include these fields in the form
-        help_texts = {
-            'phone_number': 'Enter your phone number in international format.',  # Help text for the phone number field
-            'address': 'Enter your full address.',  # Help text for the address field
-            'city': 'Enter your city of residence.',  # Help text for the city field
-            'postal_code': 'Enter your postal code.',  # Help text for the postal code field
-            'profile_picture': 'Upload your profile picture.',  # Help text for the profile picture field
+        model = Profile
+        fields = ['phone_number', 'address', 'city', 'postal_code', 'profile_picture']
+        widgets = {
+            'address': forms.TextInput(attrs={'placeholder': 'Enter your address'}),
+            'city': forms.TextInput(attrs={'placeholder': 'Enter your city'}),
         }
-        error_messages = {
-            'phone_number': {
-                'invalid': "Phone number must be in the format '+1234567890'.",  # Error message for invalid phone number
-            },
-            'postal_code': {
-                'invalid': "Postal code must be numeric and between 4 and 10 digits.",  # Error message for invalid postal code
-            },
+        help_texts = {
+            'phone_number': 'Enter your phone number in international format.',
+            'address': 'Enter your full address.',
+            'city': 'Enter your city of residence.',
+            'postal_code': 'Enter your postal code.',
+            'profile_picture': 'Upload your profile picture.',
         }
 
     def clean_phone_number(self):
-        """Ensure the phone number starts with a '+' sign."""
-        phone_number = self.cleaned_data.get('phone_number')  # Get the phone number from cleaned data
-        # Raise an error if the phone number does not start with '+'
+        phone_number = self.cleaned_data.get('phone_number')
         if phone_number and not phone_number.startswith('+'):
             raise forms.ValidationError("Phone number must start with a '+' sign.")
-        return phone_number  # Return the valid phone number
+        return phone_number
 
 # Base Address Form: This form is used for basic address input
 class BaseAddressForm(forms.Form):
@@ -187,8 +167,8 @@ class BaseAddressForm(forms.Form):
     postal_code = forms.CharField(
         max_length=20,  # Postal code cannot exceed 20 characters
         validators=[RegexValidator(
-            r'^\d{4,10}$',  # Postal code must match this regex pattern
-            'Postal code must contain between 4 and 10 digits. For example: 12345.'  # Error message for invalid postal code
+            r'^\d{1,10}$',  # Postal code must match this regex pattern
+            'Postal code must contain between 1 and 10 digits. For example: 12345.'  # Error message for invalid postal code
         )],
         widget=forms.TextInput(attrs={'placeholder': 'e.g., 12345'}),  # Placeholder text to guide users
         error_messages={

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-4">Terms of Service</h1>
+    <p class="text-muted text-center mb-5 lead">Welcome to eCommerceSite. By using our website, you agree to comply with and be bound by the following terms and conditions.</p>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing our site, you agree to these Terms of Service. If you do not agree with any part of these terms, you may not use the site.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>2. Accounts</h2>
+        <p>When you create an account on our site, you must provide accurate and complete information. You are responsible for maintaining the confidentiality of your account information and are liable for any activity under your account.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>3. Payment & Billing</h2>
+        <p>By providing a payment method, you authorize us to charge all fees incurred through your account to that payment method. All sales are final unless otherwise stated in our Returns & Exchanges policy.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>4. Product Availability</h2>
+        <p>We reserve the right to discontinue any product at any time. Prices for products are subject to change without notice.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>5. Intellectual Property</h2>
+        <p>All content on this site, including images, text, and logos, is the property of eCommerceSite and is protected by copyright laws. You may not reproduce or distribute any content without our written permission.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>6. Limitation of Liability</h2>
+        <p>eCommerceSite is not liable for any direct, indirect, or consequential damages arising from the use of our website or products.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>7. Changes to Terms</h2>
+        <p>We reserve the right to modify these Terms of Service at any time. Your continued use of the site after such changes constitutes your acceptance of the new terms.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>8. Contact Us</h2>
+        <p>If you have any questions about these Terms of Service, please contact us at <a href="mailto:eCommerceSite@gmail.com">eCommerceSite@gmail.com</a>.</p>
+    </div>
+
+    <!-- Back to Index Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'index' %}" class="btn btn-primary">Go Back</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="content-section">
+        <h1 class="section-title">Frequently Asked Questions</h1>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>1. What is your shipping policy?</h2>
+            <p>We offer free shipping on all orders above $50. Orders are typically processed within 2-3 business days,
+                and delivery takes between 5-7 business days depending on your location.</p>
+        </div>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>2. How do I track my order?</h2>
+            <p>Once your order has been shipped, you will receive an email with your tracking number. You can also track
+                your order on the "Track Order" page by entering your order number and email address.</p>
+        </div>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>3. Can I cancel or modify my order?</h2>
+            <p>Orders can be canceled or modified within 24 hours of placing the order. After that, the order will be
+                processed, and you will need to follow the returns process.</p>
+        </div>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>4. What payment methods do you accept?</h2>
+            <p>We accept all major credit cards, PayPal, and mobile payment options such as M-Pesa.</p>
+        </div>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>5. How do I return an item?</h2>
+            <p>To return an item, follow the instructions on our "Returns & Exchanges" page. Items must be returned
+                within 30 days of purchase.</p>
+        </div>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>6. How long does it take to process a refund?</h2>
+            <p>Once we receive your returned item, it takes 5-7 business days to process your refund.</p>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'index' %}" class="btn btn-primary">Go Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

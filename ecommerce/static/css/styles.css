@@ -259,7 +259,7 @@ body {
 }
 
 /* Login and Signup Form Styles: Styles for the authentication forms */
-.signup-form, .login-form {
+.signup-form, .login-form, .contact-form {
     background-color: #ffffff; /* White background for the forms */
     border-radius: 8px; /* Rounded corners for a softer look */
     box-shadow: 0 4px 8px rgba(26, 21, 21, 0.1); /* Shadow effect for depth */
@@ -332,12 +332,6 @@ body {
     transform: none;
 }
 
-h2, h3 {
-    font-weight: bold;
-}
 
-.modal-footer {
-    justify-content: center;
-}
 
 

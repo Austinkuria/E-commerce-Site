@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-4">Privacy Policy</h1>
+    <p class="text-muted text-center mb-5">At eCommerceSite, we respect your privacy and are committed to protecting the personal information you provide to us. This Privacy Policy outlines how we collect, use, and safeguard your data.</p>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Information We Collect</h2>
+        <p>We collect the following types of information:</p>
+        <ul>
+            <li>Personal information (e.g., name, email address, shipping address) provided during account registration or checkout.</li>
+            <li>Payment information (e.g., credit card details) for processing transactions securely.</li>
+            <li>Usage data (e.g., browsing activity, IP address) to improve your shopping experience.</li>
+        </ul>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>How We Use Your Information</h2>
+        <p>We use your information to:</p>
+        <ul>
+            <li>Process orders and deliver products.</li>
+            <li>Communicate with you about your order or customer service requests.</li>
+            <li>Improve our website and services based on your feedback.</li>
+        </ul>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Sharing Your Information</h2>
+        <p>We do not share your personal information with third parties except as necessary to complete your transaction (e.g., payment processors or shipping carriers).</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Your Data Security</h2>
+        <p>We use secure encryption technology to protect your data during transmission and storage. Access to your personal information is restricted to authorized personnel only.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Your Rights</h2>
+        <p>You have the right to access, update, or delete your personal information at any time by contacting us at <a href="mailto:eCommerceSite@gmail.com">eCommerceSite@gmail.com</a>.</p>
+    </div>
+
+    <!-- Back to Index Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'index' %}" class="btn btn-primary">Go Back</a>
+    </div>
+</div>
+{% endblock %}

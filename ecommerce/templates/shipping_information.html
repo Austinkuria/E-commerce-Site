@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Shipping Information{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-4">Shipping Information</h1>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Shipping Rates</h2>
+        <p>The shipping fee is calculated based on your total order price.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>General Shipping Options</h2>
+        <ul>
+            <li>Standard Shipping: 5-7 business days.</li>
+            <li>Express Shipping: 2-3 business days.</li>
+            <li>Free Shipping: Available on orders above KES 10,000 during National Holidays.</li>
+        </ul>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>International Shipping</h2>
+        <p>We currently ship to select countries worldwide. Shipping rates and delivery times vary by destination. Customs fees may apply based on your country’s regulations.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Order Processing</h2>
+        <p>Orders are typically processed within 2-3 business days. You will receive a confirmation email with tracking information once your order has shipped.</p>
+    </div>
+
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <h2>Delivery Issues</h2>
+        <p>If you encounter any issues with your delivery, please contact our support team at <a href="mailto:eCommerceSite@gmail.com">eCommerceSite@gmail.com</a>.</p>
+    </div>
+
+    <!-- Back to Index Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'index' %}" class="btn btn-primary">Go Back</a>
+    </div>
+</div>
+{% endblock %}

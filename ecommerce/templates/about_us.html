@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="content-section">
+        <h1 class="section-title">About Us</h1>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>Our Mission</h2>
+            <p>Our mission is to deliver high-quality products at affordable prices, backed by excellent customer
+                service. We strive to make online shopping convenient and enjoyable for our customers.</p>
+        </div>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>Our Values</h2>
+            <p>We believe in transparency, integrity, and building long-term relationships with our customers. These
+                values guide us in everything we do, from product selection to customer interactions.</p>
+        </div>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>Our Story</h2>
+            <p>Founded in 2024, eCommerceSite started as a small online store and has since grown into a popular
+                platform for shoppers worldwide. We pride ourselves on offering a wide range of products, fast shipping,
+                and top-notch customer support.</p>
+        </div>
+
+        <div class="bg-light p-4 rounded shadow-sm mb-4">
+            <h2>Contact Us</h2>
+            <p>If you want to learn more about our company, please feel free to reach out to us at <a
+                    href="mailto:eCommerceSite@gmail.com">eCommerceSite@gmail.com</a>.</p>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'index' %}" class="btn btn-primary">Go Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
