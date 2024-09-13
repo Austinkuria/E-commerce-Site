@@ -104,21 +104,21 @@ $(document).ready(function() {
         });
     
         // Handle "Order Now" button click
-    $('#order-now-button').on('click', function() {
-        var productId = $(this).data('id');
-        var productName = $(this).data('name');
-        var productPrice = $(this).data('price');
-        var productDescription = $(this).data('description');
-        var productQuantity = document.getElementById('modalProductQuantity').value; // Get quantity
-
-
-        if (productId !== undefined && productName !== undefined && productPrice !== undefined && productDescription !== undefined  && productQuantity !== undefined) {
-            // Redirect to checkout with product details
-            window.location.href = `/checkout/?product_id=${productId}&product_name=${encodeURIComponent(productName)}&product_price=${productPrice}&product_description=${encodeURIComponent(productDescription)}&product_quantity=${productQuantity}`;
-        } else {
-            console.error('Product details are missing, unable to proceed to checkout.');
-        }
-    });
+        $('#order-now-button').on('click', function() {
+            var productId = $(this).data('id');
+            var productName = $(this).data('name');
+            var productPrice = $(this).data('price');
+            var productDescription = $(this).data('description');
+            var productQuantity = parseInt($('#modalProductQuantity').val(), 10); // Get quantity and parse as integer
+        
+            if (productId !== undefined && productName !== undefined && productPrice !== undefined && productDescription !== undefined && productQuantity > 0) {
+                // Redirect to checkout with product details
+                window.location.href = `/checkout/?product_id=${productId}&product_name=${encodeURIComponent(productName)}&product_price=${productPrice}&product_description=${encodeURIComponent(productDescription)}&product_quantity=${productQuantity}`;
+            } else {
+                console.error('Product details are missing or quantity is invalid, unable to proceed to checkout.');
+            }
+        });
+        
 
     });
     
@@ -206,5 +206,6 @@ $(document).ready(function() {
             }
         });
     });
+    updateCart()
 });
 
