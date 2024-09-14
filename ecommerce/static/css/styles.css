@@ -30,7 +30,7 @@ body {
 .navbar .nav-link:hover {
     background-color: rgba(255, 255, 255, 0.2); /* Light, semi-transparent background on hover */
     color: #ffc107 !important; /* Yellow color on hover for a visual highlight */
-    border-radius: 5px; /* Rounded corners on hover for a soft effect */
+    border-radius: 15px; /* Rounded corners on hover for a soft effect */
 }
 
 /* Button styles */
