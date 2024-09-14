@@ -1,6 +1,5 @@
 This following  structure clearly outlines each step needed to set up and run the project.
 
-```markdown
 ## Installation and Setup
 
 1. **Creating a Virtual Environment:**
@@ -37,4 +36,4 @@ This following  structure clearly outlines each step needed to set up and run th
    ```bash
    python manage.py runserver
    ```
-```
+
