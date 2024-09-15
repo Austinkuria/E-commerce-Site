@@ -2,7 +2,7 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-    <!-- Profile Heading -->
+<div class="container py-5">
     <h2 class="mb-4 text-center font-weight-bold">Your Profile</h2>
 
     <!-- Display Messages (Success or Error) -->
@@ -17,33 +17,8 @@
     </div>
     {% endif %}
 
-    <!-- Row for Sidebar and Profile Form -->
     <div class="row">
-        <!-- Sidebar for Profile Picture -->
-        <div class="col-md-4">
-            <div class="profile-sidebar text-center mb-4 p-3 shadow-sm rounded">
-                <h4 class="mb-3">Profile Picture</h4>
-                
-                <!-- Display current profile picture -->
-                {% if user.profile.profile_picture %}
-                    <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail mb-3" style="max-width: 150px;">
-                {% else %}
-                    <p class="text-muted">No profile picture</p>
-                {% endif %}
-                
-                <!-- Django form field for profile picture -->
-                <div class="form-group mb-3">
-                    {{ profile_form.profile_picture }}
-                </div>
-                
-                <!-- Display any form field errors -->
-                {% if profile_form.profile_picture.errors %}
-                    <div class="form-text text-danger">{{ profile_form.profile_picture.errors }}</div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Profile Form -->
+        <!-- Main Content with Profile Form -->
         <div class="col-md-8">
                 <div class="card shadow-sm">
                     <form method="POST" enctype="multipart/form-data">
@@ -105,19 +80,40 @@
                                         <div class="form-text text-danger">{{ profile_form.postal_code.errors }}</div>
                                     {% endif %}
                                 </div>
+
+                                <!-- Profile Picture Field -->
+                                <div class="form-group mb-4">
+                                    <label for="{{ profile_form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label><br>
+                                    {{ profile_form.profile_picture }}
+                                    {% if profile_form.profile_picture.errors %}
+                                        <div class="form-text text-danger">{{ profile_form.profile_picture.errors }}</div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn btn-danger w-100 py-2 mt-3">Update Profile</button>
+
+                        <button type="submit" class="btn btn-danger w-100 py-2">Update Profile</button>
                     </form>
                 </div>
+        </div> <!-- Sidebar with Profile Picture -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    {% if user.profile.profile_picture %}
+                        <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail mb-3" style="max-width: 150px; border-radius: 50%;">
+                    {% else %}
+                        <p class="text-muted">No profile picture</p>
+                    {% endif %}
+                    <h4 class="font-weight-bold">{{ user.username }}</h4>
+                    <p>{{ user.email }}</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Back to Home Button -->
     <div class="text-center mt-5">
         <a href="{% url 'index' %}" class="btn btn-primary px-5">Go Back</a>
     </div>
-
+</div>
 {% endblock %}

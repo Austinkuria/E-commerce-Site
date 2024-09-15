@@ -98,7 +98,7 @@ class ProfileUpdateForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'placeholder': 'Enter your postal code'})
     )
     profile_picture = forms.ImageField(
-        required=False,
+        required=True,
         help_text="Upload your profile picture. If left blank, the default picture will be used."
     )
 
