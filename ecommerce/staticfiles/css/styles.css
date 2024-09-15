@@ -473,3 +473,23 @@ form input[type="radio"] {
 .alert-danger .btn-close:hover {
     color: #ffffff;
 }
+/* Ensure the sidebar and content are side by side and responsive */
+@media (min-width: 768px) {
+    .row {
+        display: flex;
+    }
+}
+/* Ensure the profile card takes up more space */
+.card {
+    margin-bottom: 1rem;
+}
+
+.img-thumbnail {
+    width: 100%; /* Width */
+    max-width: 150px; /* Max width */
+    height: 150px; /* Same as width to ensure it's a circle */
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+    border-radius: 50%; /* Makes the image circular */
+    border: 2px solid #ddd; /* Adds a border around the image */
+    border-radius: 50%;
+}
