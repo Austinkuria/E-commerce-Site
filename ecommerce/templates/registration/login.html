@@ -6,9 +6,9 @@
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6 login-form">
+        <div class="col-md-8 col-lg-6 login-form p-4">
             <h2 class="text-center mb-4">Login</h2>
-            <form method="POST" action="{% url 'login' %}?next={{ request.GET.next }}">
+            <form method="POST" action="{% url 'login' %}?next={{ request.GET.next }}" novalidate>
                 {% csrf_token %}
 
                 <!-- Display non-field errors -->
@@ -18,7 +18,7 @@
 
                 <!-- Render each form field and its errors -->
                 {% for field in form %}
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-4">
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                         {{ field }}
                         <!-- Display errors specific to this field -->
@@ -28,10 +28,12 @@
                     </div>
                 {% endfor %}
 
-                <button type="submit" class="btn btn-primary mt-3 mb-3">Login</button>
+                <button type="submit" class="btn btn-primary mt-3 mb-3 w-100">Login</button>
             </form>
-            <p>Don't have an account yet? <a href="{% url 'signup' %}">Sign up here</a>.</p>
-            <p><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+
+            <!-- Other Links -->
+            <p class="text-center mt-4">Don't have an account yet? <a href="{% url 'signup' %}">Sign up here</a>.</p>
+            <p class="text-center"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
         </div>
     </div>
 </div>

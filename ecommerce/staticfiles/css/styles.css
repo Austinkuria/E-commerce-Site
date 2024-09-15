@@ -29,8 +29,8 @@ body {
 
 .navbar .nav-link:hover {
     background-color: rgba(255, 255, 255, 0.2); /* Light, semi-transparent background on hover */
-    color: #ffc107 !important; /* Yellow color on hover for a visual highlight */
-    border-radius: 5px; /* Rounded corners on hover for a soft effect */
+    color: white !important; /* White color on hover for a visual highlight */
+    border-radius: 8px; /* Rounded corners on hover for a soft effect */
 }
 
 /* Button styles */
@@ -236,12 +236,14 @@ body {
     color: #ffffff; /* White text color for links and paragraphs in the footer */
     font-weight: 600; /* Bold text for emphasis */
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle shadow for readability */
+    margin:0.8rem;
 }
 
 .footer a:hover {
     background-color: rgba(255, 255, 255, 0.2); /* Light, semi-transparent background on hover */
-    color: #ffc107; /* Yellow color on hover */
+    color: white; /* White color on hover */
     border-radius: 5px; /* Rounded corners for a softer effect */
+    padding:auto;
 }
 
 /* Cart modal styles: Styles for the modal dialog */
@@ -256,6 +258,132 @@ body {
 
 .modal-body h5 {
     color: #FF4500; /* Dark orange-red color for modal body headings */
+}
+
+/* Custom Styles for Checkout Page */
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+}
+
+/* Prevent scaling for the checkout card */
+.no-scale:hover {
+    transform: none;
+}
+
+/* General form styling */
+form {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+/* Spacing between labels and inputs */
+form label {
+    margin-bottom: 8px;
+    font-weight:bold;
+}
+
+/* Style for general input fields, select, and textarea */
+form input,
+form textarea,
+form select {
+    width: 100%;  /* Full width for text inputs, text areas, and selects */
+    padding: 0.5rem;
+    margin-top: 4px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s ease;
+}
+
+/* Focus effect on inputs */
+form input:focus,
+form textarea:focus,
+form select:focus {
+    border-color:#FF4500 !important;
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Error messages */
+.form-error {
+    color: #dc3545;
+    margin-top: 5px;
+    font-size: 0.9rem;
+}
+
+/* Buttons */
+form button {
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    width: 100%;
+}
+
+form .btn-primary {
+    background-color:#FF4500 ;
+    border: none;
+}
+
+form .btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+
+/* Headings */
+h2.text-center {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .login-form,
+    .signup-form,
+    .profile-form,
+    .checkout-form {
+        padding: 1.5rem;
+    }
+}
+
+/* Custom radio button styling to ensure inline alignment */
+.form-check-inline {
+    display: inline-block; /* Ensure inline-block display */
+    margin-right: 15px; /* Add spacing between radio buttons */
+}
+
+/* Override general input styling for radio buttons */
+form input[type="radio"] {
+    width: auto; /* Keep radio buttons at their default size */
+    margin-top: 0; /* Align radio buttons with the labels */
+}
+
+/* Ensure label is inline with the radio button */
+.form-check-inline label {
+    margin-bottom: 0; /* No extra margin for inline labels */
+    font-weight: normal; /* Make the label consistent with other text */
+}
+
+/* Aligning radio buttons in the form */
+.form-check {
+    margin-bottom: 15px;
+}
+
+/* Checkout page specific styles */
+.checkout-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure the form-check-inline elements have proper spacing */
+.form-check-inline {
+    margin-right: 15px;
 }
 
 /* Login and Signup Form Styles: Styles for the authentication forms */
@@ -298,40 +426,50 @@ body {
     display: inline-block;
     margin-left: 15px; /* Adjust spacing between nav items as needed */
 }
-
-/* Responsive styles for Forms: Adjustments for smaller screens */
-@media (max-width: 767.98px) {
-    .signup-form, .login-form {
-        padding: 1rem; /* Reduced padding for smaller screens */
-    }
-
-    .form-control {
-        font-size: 0.9rem; /* Smaller font size for form controls on smaller screens */
-    }
+/* Style for the "Currently" text */
+.profile-sidebar .form-group a {
+    display: block;
+    margin-top: 10px;
+    color: #343a40;
+    text-decoration: none;
 }
 
-@media (max-width: 575.98px) {
-    .signup-form, .login-form {
-        padding: 0.5rem; /* Further reduced padding for extra small screens */
-    }
-
-    .form-control {
-        font-size: 0.8rem; /* Smaller font size for form controls on extra small screens */
-    }
-}
-/* Custom Styles for Checkout Page */
-.btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-    padding: 10px 20px;
-    font-size: 1.2rem;
+.profile-sidebar .form-group a:hover {
+    text-decoration: underline;
 }
 
-/* Prevent scaling for the checkout card */
-.no-scale:hover {
-    transform: none;
+/* Style for the "Clear" checkbox and label */
+.profile-sidebar .form-group input[type="checkbox"] {
+    margin-right: 15px;
+    vertical-align: middle;
+    
 }
 
+.profile-sidebar .form-group label {
+    margin-left: 5px;
+    color: #333;
+    font-weight: normal;
+}
+/* Style for all messages */
+.messages {
+    margin-bottom: 20px;
+}
 
+/* Style for error messages */
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px 0;
+}
 
+.alert-danger .btn-close {
+    background-color: #FF4500;
+    color: #ffffff;
+}
 
+.alert-danger .btn-close:hover {
+    color: #ffffff;
+}
