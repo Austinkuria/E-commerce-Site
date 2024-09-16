@@ -37,7 +37,7 @@ This project is a fully functional e-commerce website built using Django for the
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/ecommerce-site.git
+   git clone https://github.com/Austinkuria/E-commerce-Site.git
    ```
 2. Change into the project directory:
    ```bash
