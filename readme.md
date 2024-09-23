@@ -41,7 +41,8 @@ This project is a fully functional e-commerce website built using Django for the
    ```
 2. Change into the project directory:
    ```bash
-   cd ecommerce-site
+   cd E-commerce-Site
+   cd ecommerce
    ```
 3. Install dependencies:
    ```bash
