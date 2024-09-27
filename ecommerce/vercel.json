@@ -1,29 +1,12 @@
 {
-    "builds": [
-        {
-            "src": "ecommerce/wsgi.py",
-            "use": "@vercel/python",
-            "config": { "maxLambdaSize": 
-              "15mb", "runtime":
- "python3.12" }
-        },
- 
-{
-"src": "build_files.sh",
-"use": "@vervel/static-build",
-"config":{
-"distDir":"staticfiles_build"
-}
-}
-],
-    "routes": [
-        {
-            "src": "/static/(.*)",
-            "dest": "/static/$1"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "ecommerce/wsgi.py"
-        }
-    ]
+  "build": {
+    "env": {
+      "DJANGO_SETTINGS_MODULE": "ecommerce.settings.production"
+    },
+    "cmd": "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+  },
+  "routes": [
+    { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/(.*)", "dest": "index.html" }
+  ]
 }
