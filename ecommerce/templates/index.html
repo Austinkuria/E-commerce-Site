@@ -1,299 +1,233 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="csrf-token" content="{{ csrf_token }}" />
-    <title>E-commerce Site - Products</title>
-    <link rel="icon" href="{% static 'images/favicon.jpg' %}" type="image/png">
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-      crossorigin="anonymous"
-    />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    />
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
-  </head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token }}" />
+  <title>E-commerce Site - Products</title>
+  <link rel="icon" href="{% static 'images/favicon.jpg' %}" type="image/png">
 
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">E-commerce Site</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            {% if user.is_authenticated %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile' %}">
-                <i class="bi bi-person-circle"></i> {{ user.username }}
-              </a>
-            </li>
-            <li class="nav-item">
-              <a  class="nav-link" href="{% url 'log_out' %}">Sign out</a>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">E-commerce Site</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'profile' %}">
+              <i class="bi bi-person-circle"></i> {{ user.username }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'log_out' %}">Sign out</a>
           </li>
           {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
-            </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+          </li>
           {% endif %}
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                href="#"
-                data-bs-toggle="modal"
-                data-bs-target="#cartModal"
-              >
-                <i class="bi bi-cart4 text-light"></i>
-                <span class="badge bg-secondary" id="cart-count">0</span>
-              </a>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
+              <i class="bi bi-cart4 text-light"></i>
+              <span class="badge bg-secondary" id="cart-count">0</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- Home section start -->
+  <section class="home-section">
+    <div class="overlay">
+      <h1>Special Offer</h1>
+      <p>Don't miss our exclusive offers!</p>
+      <a href="#shop-now" class="btn-call-to-action">Shop Now</a>
+    </div>
+  </section>
+  <!-- Home section end -->
+  <!-- Products section start -->
+  <section class="products-section py-5" id="shop-now">
+    <h2>Our Products</h2>
+    <div class="container">
+      <div class="row">
+        <!-- Product cards -->
+        {% for product in products %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+          <div class="card scale-on-hover h-100">
+            <img src="{{product.image.url }}" class="card-img-top" alt="{{ product.name }}" />
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ product.name }}</h5>
+              <p class="card-text">Ksh {{ product.price }}</p>
+              <button type="button" class="btn btn-primary mt-auto add-to-cart-btn" data-bs-toggle="modal"
+                data-bs-target="#productModal" data-id="{{ product.id }}" data-name="{{ product.name }}"
+                data-price="{{ product.price }}" data-description="{{ product.description }}"
+                data-rating="{{ product.rating }}" data-reviews="{{ product.reviews }}"
+                data-image="{{product.image.url}}">
+                Add to cart
+              </button>
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  <!-- Products section end -->
+
+  <!-- Cart Modal start -->
+  <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cartModalLabel">Your Cart</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul id="cart-list" class="list-group">
+            <!-- Cart items will be dynamically added here -->
+          </ul>
+          <div class="mt-3 text-end">
+            <h5>Subtotal: Ksh <span id="cart-subtotal">0.00</span></h5>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button class="btn btn-secondary" onclick="window.location.href= '/checkout/'">Checkout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Cart Modal end -->
+  <!-- Product Modal start -->
+  <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <img id="modalProductImage" src="" class="img-fluid" alt="Product Image" />
+            </div>
+            <div class="col-md-6">
+              <h4 id="modalProductName"></h4>
+              <p id="modalProductPrice"></p>
+              <p id="modalProductDescription"></p>
+              <div id="modalProductRating" class="mb-2"></div>
+              <p id="modalProductReviews"></p>
+              <div class="quantity-adjuster">
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="modalProductQuantity" value="1" min="1" class="form-control">
+              </div>
+              <button class="btn btn-primary mt-3" id="modal-add-to-cart" data-id="">
+                Add to Cart
+              </button>
+              <button class="btn btn-secondary mt-3" id="order-now-button">Order Now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Product Modal end -->
+
+
+  <!-- snackbar start -->
+  <div id="snackbar">Product added to cart</div>
+  <!-- snackbar end -->
+
+  <!-- Footer start -->
+  <footer class="footer text-center text-lg-start">
+    <div class="container p-4">
+      <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Our Company</h5>
+          <ul class="list-unstyled mb-0">
+            <li><a href="{% url 'about_us' %}">About Us</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+            <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+            <li><a href="{% url 'terms_of_service' %}">Terms of Service</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Other Links</h5>
+          <ul class="list-unstyled mb-0">
+            <li><a href="{% url 'shipping_information' %}">Shipping Information</a></li>
+            <li><a href="{% url 'returns_exchanges' %}">Returns & Exchanges</a></li>
+            <li><a href="{% url 'faq' %}">FAQ</a></li>
+            <li><a href="{% url 'track_order' %}">Track Order</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Contact</h5>
+          <ul class="list-unstyled mb-0">
+            <li>
+              <p>
+                <i class="bi bi-geo-alt"></i> 123 Kimathi Street, Nairobi,
+                Kenya
+              </p>
+            </li>
+            <li>
+              <p><i class="bi bi-phone"></i> +254 797 561 978</p>
+            </li>
+            <li>
+              <p><i class="bi bi-envelope"></i><a href="mailto:eCommerceSite@gmail.com">eCommerceSite@gmail.com</a></p>
+            </li>
+            <li>
+              <p><i class="bi bi-clock"></i> Mon - Fri: 8:00 AM - 5:00 PM</p>
+            </li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Follow Us</h5>
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="http://facebook.com/"><i class="bi bi-facebook"></i> Facebook</a>
+            </li>
+            <li>
+              <a href="https://x.com/"><i class="bi bi-twitter-x"></i> Twitter</a>
+            </li>
+            <li>
+              <a href="https://www.instagram.com/"><i class="bi bi-instagram"></i> Instagram</a>
+            </li>
+            <li>
+              <a href="https://www.linkedin.com/"><i class="bi bi-linkedin"></i> LinkedIn</a>
             </li>
           </ul>
         </div>
       </div>
-    </nav>
-    <!-- Home section start -->
-    <section class="home-section">
-      <div class="overlay">
-        <h1>Special Offer</h1>
-        <p>Don't miss our exclusive offers!</p>
-        <a href="#shop-now" class="btn-call-to-action">Shop Now</a>
-      </div>
-    </section>
-    <!-- Home section end -->
-<!-- Products section start -->
-<section class="products-section py-5" id="shop-now">
-  <h2>Our Products</h2>
-  <div class="container">
-    <div class="row">
-      <!-- Product cards -->
-      {% for product in products %}
-      <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-        <div class="card scale-on-hover h-100">
-          <img
-            src="{{product.image.url }}"
-            class="card-img-top"
-            alt="{{ product.name }}"
-          />
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ product.name }}</h5>
-            <p class="card-text">Ksh {{ product.price }}</p>
-            <button
-            type="button"
-            class="btn btn-primary mt-auto add-to-cart-btn"
-            data-bs-toggle="modal"
-            data-bs-target="#productModal"
-            data-id="{{ product.id }}"
-            data-name="{{ product.name }}"
-            data-price="{{ product.price }}"
-            data-description="{{ product.description }}"
-            data-rating="{{ product.rating }}"
-            data-reviews="{{ product.reviews }}"
-            data-image="{{product.image.url}}"
-          >
-          Add to cart
-          </button>
-          </div>
-          
-        </div>
-      </div>
-      {% endfor %}
     </div>
-  </div>
-</section>
-<!-- Products section end -->
+  </footer>
+  <!-- Footer end -->
+  <!-- Bootstrap js -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+  <!-- Custom js -->
+  <script src="{% static 'js/script.js' %}"></script>
+</body>
 
-    <!-- Cart Modal start -->
-    <div
-      class="modal fade"
-      id="cartModal"
-      tabindex="-1"
-      aria-labelledby="cartModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="cartModalLabel">Your Cart</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <ul id="cart-list" class="list-group">
-              <!-- Cart items will be dynamically added here -->
-            </ul>
-            <div class="mt-3 text-end">
-              <h5>Subtotal: Ksh <span id="cart-subtotal">0.00</span></h5>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-            <button class="btn btn-secondary" onclick="window.location.href= '/checkout/'">Checkout</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Cart Modal end -->
-<!-- Product Modal start -->
-<div
-  class="modal fade"
-  id="productModal"
-  tabindex="-1"
-  aria-labelledby="productModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="productModalLabel">Product Details</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-6">
-            <img
-              id="modalProductImage"
-              src=""
-              class="img-fluid"
-              alt="Product Image"
-            />
-          </div>
-          <div class="col-md-6">
-            <h4 id="modalProductName"></h4>
-            <p id="modalProductPrice"></p>
-            <p id="modalProductDescription"></p>
-            <div id="modalProductRating" class="mb-2"></div>
-            <p id="modalProductReviews"></p>
-            <div class="quantity-adjuster">
-              <label for="quantity">Quantity:</label>
-              <input type="number" id="modalProductQuantity" value="1" min="1" class="form-control">
-            </div>
-            <button
-              class="btn btn-primary mt-3"
-              id="modal-add-to-cart"
-              data-id=""
-            >
-              Add to Cart
-            </button>
-            <button class="btn btn-secondary mt-3" id = "order-now-button">Order Now</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Product Modal end -->
-
-
-<!-- snackbar start -->
-<div id ="snackbar">Product added to cart</div>
-<!-- snackbar end -->
-
-    <!-- Footer start -->
-    <footer class="footer text-center text-lg-start">
-      <div class="container p-4">
-        <div class="row">
-          <div class="col-lg-3 col-md-4 col-sm-6 mb-4 mb-md-0">
-            <h5 class="text-uppercase">Our Company</h5>
-            <ul class="list-unstyled mb-0">
-              <li><a href="{% url 'about_us' %}">About Us</a></li>
-              <li><a href="{% url 'contact' %}">Contact</a></li>
-              <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
-              <li><a href="{% url 'terms_of_service' %}">Terms of Service</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-3 col-md-4 col-sm-6 mb-4 mb-md-0">
-            <h5 class="text-uppercase">Other Links</h5>
-            <ul class="list-unstyled mb-0">
-              <li><a href="{% url 'shipping_information'%}">Shipping Information</a></li>
-              <li><a href="{% url 'returns_exchanges' %}">Returns & Exchanges</a></li>
-              <li><a href="{% url 'faq' %}">FAQ</a></li>
-              <li><a href="{% url 'track_order' %}">Track Order</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-3 col-md-4 col-sm-6 mb-4 mb-md-0">
-            <h5 class="text-uppercase">Contact</h5>
-            <ul class="list-unstyled mb-0">
-              <li>
-                <p>
-                  <i class="bi bi-geo-alt"></i> 123 Kimathi Street, Nairobi,
-                  Kenya
-                </p>
-              </li>
-              <li>
-                <p><i class="bi bi-phone"></i> +254 797 561 978</p>
-              </li>
-              <li>
-                <p><i class="bi bi-envelope"></i><a href="mailto:eCommerceSite@gmail.com">eCommerceSite@gmail.com</a></p>
-              </li>
-              <li>
-                <p><i class="bi bi-clock"></i> Mon - Fri: 8:00 AM - 5:00 PM</p>
-              </li>
-            </ul>
-          </div>
-          <div class="col-lg-3 col-md-4 col-sm-6 mb-4 mb-md-0">
-            <h5 class="text-uppercase">Follow Us</h5>
-            <ul class="list-unstyled mb-0">
-              <li>
-                <a href="http://facebook.com/"><i class="bi bi-facebook"></i> Facebook</a>
-              </li>
-              <li>
-                <a href="https://x.com/"><i class="bi bi-twitter-x"></i> Twitter</a>
-              </li>
-              <li>
-                <a href="https://www.instagram.com/"><i class="bi bi-instagram"></i> Instagram</a>
-              </li>
-              <li>
-                <a href="https://www.linkedin.com/"><i class="bi bi-linkedin"></i> LinkedIn</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </footer>
-    <!-- Footer end -->
-    <!-- Bootstrap js -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-      crossorigin="anonymous"
-    ></script>
-    <!-- Custom js -->
-    <script src="{% static 'js/script.js' %}"></script>
-  </body>
 </html>

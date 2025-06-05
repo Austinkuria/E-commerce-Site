@@ -1,34 +1,75 @@
 {% extends "base.html" %}
+{% load widget_tweaks %}
 
 {% block title %}Checkout{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center py-5">
-    <!-- Checkout Heading -->
     <h2 class="text-center mb-4">Checkout</h2>
-
-    <!-- Checkout Form -->
-    <div class="col-md-6">
-        <form method="POST" action="{% url 'checkout' %}">
+    <div class="col-md-7 col-lg-6">
+        <form method="POST" action="{% url 'checkout' %}" class="checkout-form shadow-sm p-4 rounded bg-white">
             {% csrf_token %}
-
-            <!-- User Information and Payment Method -->
-            <div class="mb-4">
-                {{ form.as_p }}
+            <h4 class="mb-3"><i class="bi bi-geo-alt"></i> Shipping Address</h4>
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label for="id_address" class="form-label">Address</label>
+                    {% render_field form.address class="form-control" %}
+                    {% if form.address.errors %}<div class="form-text text-danger">{{ form.address.errors }}</div>{%
+                    endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_city" class="form-label">City</label>
+                    {% render_field form.city class="form-control" %}
+                    {% if form.city.errors %}<div class="form-text text-danger">{{ form.city.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="id_postal_code" class="form-label">Postal Code</label>
+                    {% render_field form.postal_code class="form-control" %}
+                    {% if form.postal_code.errors %}<div class="form-text text-danger">{{ form.postal_code.errors }}
+                    </div>{% endif %}
+                </div>
             </div>
-
-            <!-- Order Summary Section (shared partial) -->
-            <h3 class="mb-3">Order Summary</h3>
+            <hr class="my-4">
+            <h4 class="mb-3"><i class="bi bi-telephone"></i> Contact</h4>
+            <div class="mb-3">
+                <label for="id_phone_number" class="form-label">Phone Number</label>
+                {% render_field form.phone_number class="form-control" %}
+                {% if form.phone_number.errors %}<div class="form-text text-danger">{{ form.phone_number.errors }}</div>
+                {% endif %}
+            </div>
+            <hr class="my-4">
+            <h4 class="mb-3"><i class="bi bi-credit-card"></i> Payment Method</h4>
+            <div class="mb-3">
+                <div class="d-flex gap-4">
+                    {% for radio in form.payment_method %}
+                    <div class="form-check form-check-inline">
+                        {{ radio.tag }}
+                        <label class="form-check-label" for="{{ radio.id_for_label }}">
+                            {% if radio.choice_label == 'Visa' %}<img
+                                src="https://img.icons8.com/color/32/000000/visa.png" alt="Visa"
+                                style="height:24px;vertical-align:middle;">{% endif %}
+                            {% if radio.choice_label == 'MasterCard' %}<img
+                                src="https://img.icons8.com/color/32/000000/mastercard-logo.png" alt="MasterCard"
+                                style="height:24px;vertical-align:middle;">{% endif %}
+                            {% if radio.choice_label == 'M-Pesa' %}<img
+                                src="https://seeklogo.com/images/M/m-pesa-logo-6A3D1B5B2B-seeklogo.com.png" alt="M-Pesa"
+                                style="height:24px;vertical-align:middle;width:32px;">{% endif %}
+                            {{ radio.choice_label }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if form.payment_method.errors %}<div class="form-text text-danger">{{ form.payment_method.errors }}
+                </div>{% endif %}
+            </div>
+            <hr class="my-4">
+            <h4 class="mb-3"><i class="bi bi-receipt"></i> Order Summary</h4>
             {% include "order_summary.html" %}
-
-            <!-- Place Order Button -->
-            <button type="submit" class="btn btn-danger w-100">Place Order</button>
+            <button type="submit" class="btn btn-danger w-100 py-2 mt-3">Place Order</button>
         </form>
     </div>
 </div>
-
-<!-- Back to Index Button -->
 <div class="text-center mt-4">
-    <a href="{% url 'index' %}" class="btn btn-primary">Go Back</a>
+    <a href="{% url 'index' %}" class="btn btn-primary"><i class="bi bi-arrow-left"></i> Go Back</a>
 </div>
 {% endblock %}
