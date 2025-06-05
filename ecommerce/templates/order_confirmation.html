@@ -21,26 +21,15 @@
         </div>
     </div>
 
-    <!-- Order Summary -->
+    <!-- Order Summary (shared partial) -->
     <h3 class="mb-3">Order Summary</h3>
-    <ul class="list-group mb-4">
-        {% for item in order_items %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ item.quantity }} x {{ item.product.name }}: 
-            <span>Ksh {{ item.total_price|floatformat:2 }}</span>
-        </li>
-        {% endfor %}
-    </ul>
-
-    <!-- Total and Shipping Fee -->
-    <div class="text-end">
-        <p><strong>Shipping Fee:</strong> Ksh {{ shipping_fee|floatformat:2 }}</p>
-        <h5><strong>Total:</strong> Ksh {{ total_price|floatformat:2 }}</h5>
-    </div>
+    {% include "order_summary.html" with cart_items=order_items shipping_fee=shipping_fee total_price=total_price %}
 
     <!-- Notification and Back Button -->
-    <p class="mt-4 text-center">We will send you an email with the order details and notify you once your order is shipped.</p>
-    <p class="mt-4 text-center">You can Track the status of your order here <a href="{% url 'track_order' %}">Track Order</a> .</p>
+    <p class="mt-4 text-center">We will send you an email with the order details and notify you once your order is
+        shipped.</p>
+    <p class="mt-4 text-center">You can Track the status of your order here <a href="{% url 'track_order' %}">Track
+            Order</a> .</p>
     <p class="text-center">For any inquiries, please contact our customer service.</p>
 
     <div class="text-center">
