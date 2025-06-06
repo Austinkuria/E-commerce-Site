@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load widget_tweaks %}
+{% load widget_tweaks static %}
 
 {% block title %}Checkout{% endblock %}
 
@@ -52,9 +52,8 @@
                             {% if radio.choice_label == 'MasterCard' %}<img
                                 src="https://img.icons8.com/color/32/000000/mastercard-logo.png" alt="MasterCard"
                                 style="height:24px;vertical-align:middle;">{% endif %}
-                            {% if radio.choice_label == 'M-Pesa' %}<img
-                                src="https://seeklogo.com/images/M/m-pesa-logo-6A3D1B5B2B-seeklogo.com.png" alt="M-Pesa"
-                                style="height:24px;vertical-align:middle;width:32px;">{% endif %}
+                            {% if radio.choice_label == 'M-Pesa' %}<img src="{% static 'images/mpesa.png' %}"
+                                alt="M-Pesa" style="height:24px;vertical-align:middle;width:32px;">{% endif %}
                             {{ radio.choice_label }}
                         </label>
                     </div>
