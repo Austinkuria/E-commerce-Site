@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'myapp',
+    'widget_tweaks',  # This app is used to customize the appearance of Django's admin interface.
     'corsheaders', # This allows us to use the django-cors-headers package to handle CORS (Cross-Origin Resource Sharing) in our Django project.
 ]
 

@@ -1,7 +1,7 @@
 from django import forms  # Import Django's forms module
 from django.contrib.auth.models import User  # Import the User model for user-related forms
 from django.contrib.auth.forms import AuthenticationForm  # Import AuthenticationForm for login
-from django.core.validators import RegexValidator  # Import RegexValidator for custom validation
+from django.core.validators import RegexValidator, MinValueValidator  # Import RegexValidator and MinValueValidator for custom validation
 from .models import Profile  # Import the Profile model for user profile-related forms
 
 # Custom User Creation Form: This form is used to register new users with validation
@@ -190,5 +190,15 @@ class CheckoutForm(BaseAddressForm):
         widget=forms.RadioSelect,  # Use radio buttons for selection
         error_messages={
             'required': 'Please select a payment method.',  # Error message if payment method is not selected
+        }
+    )
+    quantity = forms.IntegerField(
+        min_value=1,
+        initial=1,
+        validators=[MinValueValidator(1)],
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+        error_messages={
+            'min_value': 'Quantity must be at least 1.',
+            'invalid': 'Enter a valid quantity.'
         }
     )
