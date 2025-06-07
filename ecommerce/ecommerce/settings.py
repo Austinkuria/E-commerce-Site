@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-+8pm%aiss#2o_21+5x=e6b6@g7n0)cmhgvzjh+wh_fo1g7b&ea
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['austin125.pythonanywhere.com', 'localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = ['*']
 
 # For handling static files in production
 X_FRAME_OPTIONS = 'SAMEORIGIN'
