@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure-+8pm%aiss#2o_21+5x=e6b6@g7n0)cmhgvzjh+wh_fo1g7b&ea
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['austin125.pythonanywhere.com', 'localhost', '127.0.0.1', '*']
+
+# For handling static files in production
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+SECURE_SSL_REDIRECT = False  # Set to True if you have SSL configured
+CSRF_COOKIE_SECURE = False  # Set to True if you have SSL configured
+SESSION_COOKIE_SECURE = False  # Set to True if you have SSL configured
 
 
 # Application definition
@@ -44,14 +50,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise must be above all except security
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS headers should be early
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # Handles CORS headers
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 
@@ -152,19 +158,19 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-
-
 STATIC_URL = '/static/'
-
-# Directory where collectstatic will put all collected static files
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Directories where Django will look for static files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # 'static' folder for additional static files
+    os.path.join(BASE_DIR, 'static'),
 ]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Simplified static file serving
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+# Enable WhiteNoise's GZip compression
+WHITENOISE_COMPRESSION_ENABLED = True
 
 
 MEDIA_URL = '/media/'
@@ -178,24 +184,33 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # LOGIN_REDIRECT_URL = '/' # Redirect after successful login
 # LOGOUT_REDIRECT_URL = 'login'  # Redirects to the login page after logout
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#             'level': 'DEBUG',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#         'myapp': { 
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#         },
-#     },
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'django_debug.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'myapp': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
